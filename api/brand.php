@@ -203,7 +203,7 @@ function mapToBrand($r): array {
         'logoSize'=>$logo['size']??60,'phone'=>$r['phone']??'','email'=>$r['email']??'',
         'address'=>$r['address']??'','showLogo'=>$disp['showLogo']??true,
         'showName'=>$disp['showName']??true,'showContact'=>$disp['showContact']??true,
-        'showSocials'=>$disp['showSocials']??true,'overlayOpacity'=>$disp['overlayOpacity']??90,
+        'showSocials'=>$disp['showSocials']??true,'watermarkEnabled'=>$disp['watermarkEnabled']??true,'overlayOpacity'=>$disp['overlayOpacity']??90,
         'selectedLayout'=>$lay['selectedLayout']??'classic','logoPosition'=>$lay['logoPosition']??'top-right',
         'namePosition'=>$lay['namePosition']??'bottom-left','addressPosition'=>$lay['addressPosition']??'bottom-left',
         'socialPosition'=>$lay['socialPosition']??'bottom-right','activeSocials'=>$activeSocials,
@@ -217,7 +217,7 @@ function getDefaultBrand(): array {
     return [
         'id'=>null,'business_id'=>null,'brandName'=>'My Brand','brand_name'=>'My Brand',
         'brandColor'=>'#4f46e5','brand_color'=>'#4f46e5','logoColor'=>'','logoWhite'=>'','logoBlack'=>'','logoSize'=>60,
-        'phone'=>'','email'=>'','address'=>'','showLogo'=>true,'showName'=>true,'showContact'=>true,'showSocials'=>true,
+        'phone'=>'','email'=>'','address'=>'','showLogo'=>true,'showName'=>true,'showContact'=>true,'showSocials'=>true,'watermarkEnabled'=>true,
         'overlayOpacity'=>90,'selectedLayout'=>'classic','logoPosition'=>'top-right','namePosition'=>'bottom-left',
         'addressPosition'=>'bottom-left','socialPosition'=>'bottom-right',
         'activeSocials'=>['instagram'=>true,'facebook'=>true,'linkedin'=>true,'whatsapp'=>true,'pinterest'=>false,'youtube'=>false,'google_business'=>false],
@@ -226,7 +226,7 @@ function getDefaultBrand(): array {
 }
 
 function buildLogoSettings($in): array { return ['color'=>$in['logoColor']??$in['logo_color']??'','white'=>$in['logoWhite']??$in['logo_white']??'','black'=>$in['logoBlack']??$in['logo_black']??'','size'=>intval($in['logoSize']??$in['logo_size']??60)]; }
-function buildDisplaySettings($in): array { return ['showLogo'=>(bool)($in['showLogo']??$in['show_logo']??true),'showName'=>(bool)($in['showName']??$in['show_name']??true),'showContact'=>(bool)($in['showContact']??$in['show_contact']??true),'showSocials'=>(bool)($in['showSocials']??$in['show_socials']??true),'overlayOpacity'=>intval($in['overlayOpacity']??$in['overlay_opacity']??90)]; }
+function buildDisplaySettings($in): array { return ['showLogo'=>(bool)($in['showLogo']??$in['show_logo']??true),'showName'=>(bool)($in['showName']??$in['show_name']??true),'showContact'=>(bool)($in['showContact']??$in['show_contact']??true),'showSocials'=>(bool)($in['showSocials']??$in['show_socials']??true),'watermarkEnabled'=>(bool)($in['watermarkEnabled']??$in['watermark_enabled']??true),'overlayOpacity'=>intval($in['overlayOpacity']??$in['overlay_opacity']??90)]; }
 function buildLayoutSettings($in): array { return ['selectedLayout'=>$in['selectedLayout']??$in['selected_layout']??'classic','logoPosition'=>$in['logoPosition']??$in['logo_position']??'top-right','namePosition'=>$in['namePosition']??$in['name_position']??'bottom-left','addressPosition'=>$in['addressPosition']??$in['address_position']??'bottom-left','socialPosition'=>$in['socialPosition']??$in['social_position']??'bottom-right']; }
 function buildSocialLinks($in): array { $as=$in['activeSocials']??$in['active_socials']??[]; if(!is_array($as))$as=[]; $links=[]; foreach(['instagram','facebook','linkedin','whatsapp','pinterest','youtube','google_business'] as $p){ $links[$p]=['active'=>(bool)($as[$p]??false),'url'=>$in['social_'.$p]??'']; } if(empty(array_filter(array_column($links,'active')))){ foreach(['instagram','facebook','linkedin','whatsapp'] as $p)$links[$p]['active']=true; } return $links; }
 function buildAiConfig($in): array { return ['textModel'=>$in['textModel']??$in['text_model']??'gemini-1.5-flash','imageModel'=>$in['imageModel']??$in['image_model']??'imagen','geminiApiKey'=>$in['geminiApiKey']??$in['gemini_api_key']??'','openaiApiKey'=>$in['openaiApiKey']??$in['openai_api_key']??'']; }

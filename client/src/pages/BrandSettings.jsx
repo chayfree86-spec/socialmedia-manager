@@ -28,6 +28,7 @@ const defaultSettings = {
   showName: true,
   showContact: true,
   showSocials: true,
+  watermarkEnabled: true,
   selectedLayout: 'classic', // classic, modern, footer, header, custom
   logoPosition: 'top-right',
   namePosition: 'bottom-left',
@@ -146,6 +147,7 @@ export default function BrandSettings() {
             showName: brand.showName ?? true,
             showContact: brand.showContact ?? true,
             showSocials: brand.showSocials ?? true,
+            watermarkEnabled: brand.watermarkEnabled ?? true,
             selectedLayout: brand.selectedLayout || 'classic',
             logoPosition: brand.logoPosition || 'top-right',
             namePosition: brand.namePosition || 'bottom-left',
@@ -215,6 +217,8 @@ export default function BrandSettings() {
         show_contact: newSettings.showContact,
         showSocials: newSettings.showSocials,
         show_socials: newSettings.showSocials,
+        watermarkEnabled: newSettings.watermarkEnabled,
+        watermark_enabled: newSettings.watermarkEnabled,
         overlayOpacity: newSettings.overlayOpacity,
         overlay_opacity: newSettings.overlayOpacity,
         selectedLayout: newSettings.selectedLayout,
@@ -746,6 +750,23 @@ export default function BrandSettings() {
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Toggle Overall Watermark */}
+                  <div className="col-span-1 sm:col-span-2 flex items-center justify-between p-4 border border-gray-150 rounded-2xl hover:bg-gray-50/50 bg-gray-50/20 transition">
+                    <div>
+                      <span className="block text-sm font-bold text-gray-800">Enable Brand Watermark</span>
+                      <span className="text-xs text-gray-400">If disabled, no watermark overlay will be shown on poster previews or post outputs.</span>
+                    </div>
+                    <button
+                      onClick={() => handleInputChange('watermarkEnabled', !settings.watermarkEnabled)}
+                      className="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+                      style={settings.watermarkEnabled ? { backgroundColor: settings.brandColor } : { backgroundColor: '#e5e7eb' }}
+                    >
+                      <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                        settings.watermarkEnabled ? 'translate-x-5' : 'translate-x-0'
+                      }`} />
+                    </button>
+                  </div>
+
                   {/* Toggle Logo */}
                   <div className="flex items-center justify-between p-4 border border-gray-150 rounded-2xl hover:bg-gray-50/50 transition">
                     <div>
@@ -1395,7 +1416,7 @@ export default function BrandSettings() {
             )}
 
             {/* Banner Layout Elements Container */}
-            {(settings.selectedLayout === 'footer' || settings.selectedLayout === 'header') && (
+            {settings.watermarkEnabled && (settings.selectedLayout === 'footer' || settings.selectedLayout === 'header') && (
               <div className={layoutStyles.bannerContainer?.position} style={layoutStyles.bannerContainer?.style}>
                 {/* Logo in Banner */}
                 {settings.showLogo && (
@@ -1417,7 +1438,7 @@ export default function BrandSettings() {
                   )}
                   {settings.showContact && (
                     <div className="text-[9px] text-white/85 truncate font-medium">
-                      {settings.phone} • {settings.email}
+                      {[settings.phone, settings.email, settings.address].filter(Boolean).join(' • ')}
                     </div>
                   )}
                 </div>
@@ -1439,7 +1460,7 @@ export default function BrandSettings() {
             )}
 
             {/* Classic / Modern / Custom Layout Elements */}
-            {settings.selectedLayout !== 'footer' && settings.selectedLayout !== 'header' && (
+            {settings.watermarkEnabled && settings.selectedLayout !== 'footer' && settings.selectedLayout !== 'header' && (
               <>
                 {/* 1. Brand Logo */}
                 {settings.showLogo && (
@@ -1498,7 +1519,7 @@ export default function BrandSettings() {
             )}
 
             {/* Additional details for Header layout (shows address separately at bottom) */}
-            {settings.selectedLayout === 'header' && (
+            {settings.watermarkEnabled && settings.selectedLayout === 'header' && (
               <>
                 {settings.showContact && (
                   <div className={layoutStyles.addressCorner?.position} style={layoutStyles.addressCorner?.style}>

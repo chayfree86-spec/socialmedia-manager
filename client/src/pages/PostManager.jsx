@@ -10,6 +10,10 @@ import SocialIcon from '../components/SocialIcons';
 
 const API_BASE = '/api';
 
+const isVideo = (url) => {
+  return url && (url.startsWith('data:video/') || url.includes('data:video/') || url.match(/\.(mp4|webm|ogg|mov)$/i));
+};
+
 export default function PostManager() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -100,7 +104,7 @@ export default function PostManager() {
       <div className="min-h-full bg-gray-50 text-gray-800 p-4 sm:p-6 lg:p-8 space-y-6">
         {/* Navigation Header */}
         <div className="flex items-center gap-2 text-sm text-gray-500">
-          <button onClick={() => setSelectedPost(null)} className="hover:text-indigo-650 transition font-medium">
+          <button onClick={() => setSelectedPost(null)} className="hover:text-indigo-600 transition font-medium">
             Posts
           </button>
           <ChevronRight className="w-4 h-4 text-gray-400" />
@@ -181,7 +185,7 @@ export default function PostManager() {
               {selectedPost.hashtags?.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 pt-2">
                   {selectedPost.hashtags.map((tag, i) => (
-                    <span key={i} className="text-xs px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-650 font-semibold">
+                    <span key={i} className="text-xs px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 font-semibold">
                       {tag}
                     </span>
                   ))}
@@ -225,7 +229,11 @@ export default function PostManager() {
               {/* Mockup Image */}
               <div className="aspect-square bg-gray-50 flex items-center justify-center border-b border-gray-100 overflow-hidden relative">
                 {selectedPost.imageUrl ? (
-                  <img src={selectedPost.imageUrl} alt="Social Preview" className="w-full h-full object-cover" />
+                  isVideo(selectedPost.imageUrl) ? (
+                    <video src={selectedPost.imageUrl} controls className="w-full h-full object-cover bg-black" />
+                  ) : (
+                    <img src={selectedPost.imageUrl} alt="Social Preview" className="w-full h-full object-cover" />
+                  )
                 ) : (
                   <div className="text-center p-6 space-y-2">
                     <FileText className="w-12 h-12 text-gray-400 mx-auto" />
@@ -239,7 +247,7 @@ export default function PostManager() {
                 <div className="flex items-center justify-between text-gray-500">
                   <div className="flex items-center gap-4">
                     <svg className="w-6 h-6 hover:text-red-500 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
-                    <svg className="w-6 h-6 hover:text-indigo-650 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                    <svg className="w-6 h-6 hover:text-indigo-600 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
                     <svg className="w-6 h-6 hover:text-green-500 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 10.742a3 3 0 11-2.2-2.2l1.393 2.686z M12.852 14.5a3 3 0 11-4.43 0l2.215-4.43z M15.316 10.742a3 3 0 112.2-2.2l-1.393 2.686z"></path></svg>
                   </div>
                   <svg className="w-6 h-6 hover:text-gray-800 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
@@ -292,7 +300,7 @@ export default function PostManager() {
               onClick={() => setFilter(f)}
               className={`px-5 py-2.5 rounded-xl text-sm font-bold border transition-all capitalize whitespace-nowrap ${
                 filter === f
-                  ? 'bg-indigo-650 border-indigo-650 text-white shadow-md'
+                  ? 'bg-indigo-600 border-indigo-600 text-white shadow-md'
                   : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
               }`}
             >
@@ -357,7 +365,7 @@ export default function PostManager() {
                 {post.hashtags?.length > 0 && (
                   <div className="flex flex-wrap gap-1">
                     {post.hashtags.slice(0, 3).map((tag, i) => (
-                      <span key={i} className="text-[10px] px-2.5 py-0.5 rounded-full bg-gray-50 border border-gray-100 text-indigo-650 font-bold">
+                      <span key={i} className="text-[10px] px-2.5 py-0.5 rounded-full bg-gray-50 border border-gray-100 text-indigo-600 font-bold">
                         {tag}
                       </span>
                     ))}

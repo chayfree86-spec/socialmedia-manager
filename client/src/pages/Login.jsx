@@ -331,7 +331,7 @@ export default function Login({ onLogin }) {
               </div>
 
               <div className="text-sm">
-                <span className="font-semibold text-indigo-500 hover:text-indigo-650 cursor-help" onClick={() => toast('Demo Creds: admin@socialai.com / admin123')}>
+                <span className="font-semibold text-indigo-500 hover:text-indigo-600 cursor-help" onClick={() => toast('Demo Creds: admin@socialai.com / admin123')}>
                   Demo account info?
                 </span>
               </div>
@@ -406,7 +406,7 @@ export default function Login({ onLogin }) {
               <p className="text-xs text-gray-400">
                 Didn't receive code?{' '}
                 <span 
-                  className="font-bold text-indigo-500 hover:text-indigo-650 cursor-pointer"
+                  className="font-bold text-indigo-500 hover:text-indigo-600 cursor-pointer"
                   onClick={() => {
                     toast.success('Demo code resent! 🔑 code: 123456');
                   }}

@@ -47,6 +47,10 @@ const PLATFORM_CFG = {
   },
 };
 
+const isVideo = (url) => {
+  return url && (url.startsWith('data:video/') || url.includes('data:video/') || url.match(/\.(mp4|webm|ogg|mov)$/i));
+};
+
 export default function PostPreview({ caption, hashtags, imageUrl, videoUrl, platforms, brand, isOpen, onClose, onCaptionChange, onApprove }) {
   const [active, setActive] = useState('instagram');
   const [viewMode, setViewMode] = useState('mobile');
@@ -138,8 +142,12 @@ export default function PostPreview({ caption, hashtags, imageUrl, videoUrl, pla
                     <div className="flex-1"><p className="text-xs font-semibold">{brandName}</p><p className="text-[10px] text-gray-400">{brandLoc}</p></div>
                     <MoreHorizontal className="w-5 h-5 text-gray-400" />
                   </div>
-                  <div style={{ height: imgH, maxHeight: 380, background: '#f3f4f6' }}>
-                    <img src={displayImage} alt="" className="w-full h-full object-cover object-center" onError={e => { e.target.src = `https://placehold.co/${w}x${imgH}/6366f1/fff?text=IG`; }} />
+                  <div style={{ height: imgH, maxHeight: 380, background: '#f3f4f6' }} className="flex items-center justify-center overflow-hidden">
+                    {isVideo(imageUrl) ? (
+                      <video src={imageUrl} controls className="w-full h-full object-cover bg-black" />
+                    ) : (
+                      <img src={displayImage} alt="" className="w-full h-full object-cover object-center" onError={e => { e.target.src = `https://placehold.co/${w}x${imgH}/6366f1/fff?text=IG`; }} />
+                    )}
                   </div>
                   <div className="flex justify-between px-3 py-2">
                     <div className="flex gap-3">
@@ -167,8 +175,12 @@ export default function PostPreview({ caption, hashtags, imageUrl, videoUrl, pla
                     <MoreHorizontal className="w-5 h-5 text-gray-400 ml-auto" />
                   </div>
                   <div className="px-3 pb-2"><p className="text-xs text-gray-800">{shortCaption}</p></div>
-                  <div style={{ height: imgH, maxHeight: 320, background: '#f3f4f6' }}>
-                    <img src={displayImage} alt="" className="w-full h-full object-cover object-center" onError={e => { e.target.src = `https://placehold.co/${w}x${imgH}/1877f2/fff?text=FB`; }} />
+                  <div style={{ height: imgH, maxHeight: 320, background: '#f3f4f6' }} className="flex items-center justify-center overflow-hidden">
+                    {isVideo(imageUrl) ? (
+                      <video src={imageUrl} controls className="w-full h-full object-cover bg-black" />
+                    ) : (
+                      <img src={displayImage} alt="" className="w-full h-full object-cover object-center" onError={e => { e.target.src = `https://placehold.co/${w}x${imgH}/1877f2/fff?text=FB`; }} />
+                    )}
                   </div>
                   <div className="flex justify-between px-3 py-2 border-b">
                     <span className="text-[10px] text-gray-500">👍 0</span>
@@ -197,8 +209,12 @@ export default function PostPreview({ caption, hashtags, imageUrl, videoUrl, pla
                       </div>
                       <p className="text-xs mt-1 whitespace-pre-wrap leading-relaxed">{displayCaption}</p>
                       {tags.length > 0 && <div className="flex flex-wrap gap-1 mt-1"><span className="text-[11px] text-blue-500">{tags.slice(0,4).join(' ')}</span></div>}
-                      <div className="mt-2 rounded-2xl border border-gray-200 overflow-hidden" style={{ height: Math.min(imgH, 220) }}>
-                        <img src={displayImage} alt="" className="w-full h-full object-cover object-center" onError={e => { e.target.src = `https://placehold.co/${w}x${Math.min(imgH,220)}/1d9bf0/fff?text=X`; }} />
+                      <div className="mt-2 rounded-2xl border border-gray-200 overflow-hidden flex items-center justify-center bg-black" style={{ height: Math.min(imgH, 220) }}>
+                        {isVideo(imageUrl) ? (
+                          <video src={imageUrl} controls className="w-full h-full object-cover" />
+                        ) : (
+                          <img src={displayImage} alt="" className="w-full h-full object-cover object-center" onError={e => { e.target.src = `https://placehold.co/${w}x${Math.min(imgH,220)}/1d9bf0/fff?text=X`; }} />
+                        )}
                       </div>
                       <div className="flex justify-between mt-2 pr-8">
                         {[
@@ -231,8 +247,12 @@ export default function PostPreview({ caption, hashtags, imageUrl, videoUrl, pla
                   <div className="px-3 pb-2">
                     <p className="text-xs text-gray-800 leading-relaxed">{displayCaption}</p>
                   </div>
-                  <div style={{ height: imgH, maxHeight: 300, background: '#f3f4f6' }}>
-                    <img src={displayImage} alt="" className="w-full h-full object-cover object-center" onError={e => { e.target.src = `https://placehold.co/${w}x${imgH}/0a66c2/fff?text=LI`; }} />
+                  <div style={{ height: imgH, maxHeight: 300, background: '#f3f4f6' }} className="flex items-center justify-center overflow-hidden">
+                    {isVideo(imageUrl) ? (
+                      <video src={imageUrl} controls className="w-full h-full object-cover bg-black" />
+                    ) : (
+                      <img src={displayImage} alt="" className="w-full h-full object-cover object-center" onError={e => { e.target.src = `https://placehold.co/${w}x${imgH}/0a66c2/fff?text=LI`; }} />
+                    )}
                   </div>
                   <div className="flex justify-between px-3 py-2 border-b">
                     <span className="text-[10px] text-gray-500">👍 0</span>
@@ -252,15 +272,21 @@ export default function PostPreview({ caption, hashtags, imageUrl, videoUrl, pla
               {/* ============ YOUTUBE STYLE ============ */}
               {cfg.style === 'youtube' && (
                 <>
-                  <div className="relative" style={{ height: imgH, maxHeight: 300, background: '#000' }}>
-                    <img src={displayImage} alt="" className="w-full h-full object-cover object-center opacity-80" onError={e => { e.target.src = `https://placehold.co/${w}x${imgH}/ff0000/fff?text=YT`; }} />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-14 h-14 rounded-full bg-red-600/90 flex items-center justify-center shadow-xl">
-                        <Play className="w-7 h-7 text-white fill-white ml-1" />
-                      </div>
-                    </div>
-                    <div className="absolute bottom-1 right-1 px-2 py-0.5 rounded bg-black/80 text-white text-[10px] font-medium">0:15</div>
-                    <div className="absolute top-2 right-2 px-2 py-0.5 rounded bg-black/60 text-white text-[10px]">▶ Playing</div>
+                  <div className="relative flex items-center justify-center overflow-hidden" style={{ height: imgH, maxHeight: 300, background: '#000' }}>
+                    {isVideo(imageUrl) ? (
+                      <video src={imageUrl} controls className="w-full h-full object-cover" />
+                    ) : (
+                      <>
+                        <img src={displayImage} alt="" className="w-full h-full object-cover object-center opacity-80" onError={e => { e.target.src = `https://placehold.co/${w}x${imgH}/ff0000/fff?text=YT`; }} />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-14 h-14 rounded-full bg-red-600/90 flex items-center justify-center shadow-xl">
+                            <Play className="w-7 h-7 text-white fill-white ml-1" />
+                          </div>
+                        </div>
+                        <div className="absolute bottom-1 right-1 px-2 py-0.5 rounded bg-black/80 text-white text-[10px] font-medium">0:15</div>
+                        <div className="absolute top-2 right-2 px-2 py-0.5 rounded bg-black/60 text-white text-[10px]">▶ Playing</div>
+                      </>
+                    )}
                   </div>
                   <div className="p-3">
                     <div className="flex gap-3">
@@ -278,8 +304,12 @@ export default function PostPreview({ caption, hashtags, imageUrl, videoUrl, pla
               {/* ============ TIKTOK STYLE ============ */}
               {cfg.style === 'tiktok' && (
                 <>
-                  <div className="relative" style={{ height: imgH, maxHeight: 420, background: '#000' }}>
-                    <img src={displayImage} alt="" className="w-full h-full object-cover object-center" onError={e => { e.target.src = `https://placehold.co/${w}x${imgH}/00f2ea/000?text=TT`; }} />
+                  <div className="relative flex items-center justify-center overflow-hidden" style={{ height: imgH, maxHeight: 420, background: '#000' }}>
+                    {isVideo(imageUrl) ? (
+                      <video src={imageUrl} controls className="w-full h-full object-cover" />
+                    ) : (
+                      <img src={displayImage} alt="" className="w-full h-full object-cover object-center" onError={e => { e.target.src = `https://placehold.co/${w}x${imgH}/00f2ea/000?text=TT`; }} />
+                    )}
                     {/* Right sidebar icons */}
                     <div className="absolute right-2 bottom-16 flex flex-col items-center gap-5">
                       <div className="flex flex-col items-center"><div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center"><Heart className="w-5 h-5 text-white" /></div><span className="text-[10px] text-white mt-0.5">0</span></div>

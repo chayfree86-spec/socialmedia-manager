@@ -59,6 +59,18 @@ const getAiHeaders = () => {
   return {};
 };
 
+const isVideo = (url) => {
+  return url && (url.startsWith('data:video/') || url.includes('data:video/') || url.match(/\.(mp4|webm|ogg|mov)$/i));
+};
+
+const isHashOrFilename = (str) => {
+  if (!str) return false;
+  const normalized = str.replace(/[\s-_]/g, '');
+  return /^[a-f0-9]{32}$/i.test(normalized) || 
+         /^[a-f0-9]{8}[a-f0-9]{4}[a-f0-9]{4}[a-f0-9]{4}[a-f0-9]{12}$/i.test(normalized) || 
+         (normalized.length > 12 && /^[a-f0-9]+$/i.test(normalized));
+};
+
 export default function ContentGenerator() {
   const location = useLocation();
   const [prompt, setPrompt] = useState(location.state?.prompt || '');
@@ -100,6 +112,10 @@ export default function ContentGenerator() {
   const [showPreview, setShowPreview] = useState(false);
   const resultRef = useRef(null);
 
+  const [useCustomContent, setUseCustomContent] = useState(false);
+  const [customCaption, setCustomCaption] = useState('');
+  const [customHashtags, setCustomHashtags] = useState('');
+
   useEffect(() => {
     const businessId = localStorage.getItem('socialai_active_business_id') || '1';
     axios.get(`${API_BASE}/brand.php?business_id=${businessId}&user_id=default`)
@@ -119,21 +135,43 @@ export default function ContentGenerator() {
   const deselectAllPlatforms = () => setPlatforms([]);
 
   // Handle file upload
-  const handleFileUpload = (e) => {
+  const handleFileUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 50 * 1024 * 1024) { toast.error('File too large! Max 50MB'); return; }
+
+    // Instant local preview
     const reader = new FileReader();
     reader.onload = (ev) => {
-      const dataUrl = ev.target.result;
-      setUploadedFile({ name: file.name, type: file.type.startsWith('video') ? 'video' : 'image', size: file.size, dataUrl });
-      setUploadPreview(dataUrl);
-      // Auto-set content from filename
-      const name = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
-      if (!prompt) setPrompt(name);
-      toast.success(`✅ ${file.name} uploaded! Select platforms → Generate`);
+      setUploadPreview(ev.target.result);
     };
     reader.readAsDataURL(file);
+
+    setUploadedFile({ name: file.name, type: file.type.startsWith('video') ? 'video' : 'image', size: file.size, dataUrl: null, uploading: true });
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const { data } = await axios.post(`${API_BASE}/upload.php`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      if (data.success) {
+        setUploadedFile(prev => ({ ...prev, dataUrl: data.url, uploading: false }));
+        const name = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
+        const isHash = isHashOrFilename(file.name.replace(/\.[^/.]+$/, ''));
+        if (!prompt && !isHash) setPrompt(name);
+        toast.success(`✅ ${file.name} uploaded to server!`);
+      } else {
+        toast.error('Server failed to save the uploaded file.');
+        setUploadedFile(null);
+        setUploadPreview('');
+      }
+    } catch (err) {
+      toast.error('Failed to upload file to server.');
+      setUploadedFile(null);
+      setUploadPreview('');
+    }
   };
 
   const removeUpload = () => { setUploadedFile(null); setUploadPreview(''); };
@@ -141,10 +179,37 @@ export default function ContentGenerator() {
   // STEP 1: Generate Content (works for both prompt & upload mode)
   const generateContent = async () => {
     const businessId = localStorage.getItem('socialai_active_business_id') || '1';
+
+    if (useCustomContent) {
+      if (!customCaption.trim()) { toast.error('Please enter a custom caption! ✍️'); return; }
+      const tags = customHashtags.split(/[,\s]+/).map(t => t.trim()).filter(Boolean).map(t => t.startsWith('#') ? t : '#' + t);
+      
+      setContent(prev => ({
+        ...prev,
+        caption: customCaption,
+        hashtags: tags,
+        alternatives: [],
+        bestTimeToPost: '',
+        imageUrl: mode === 'upload' ? uploadedFile?.dataUrl : '',
+        imagePrompt: mode === 'upload' ? `Uploaded: ${uploadedFile.name}` : '',
+        imageSize: { w: 1080, h: 1080 }
+      }));
+      setEditCaption(customCaption);
+      setEditHashtags(tags.join(' '));
+      
+      setStep(1);
+      toast.success('✅ Custom content applied!');
+      setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth' }), 200);
+      return;
+    }
+
     if (mode === 'upload') {
       if (!uploadedFile) { toast.error('Please upload a file first! 📤'); return; }
+      if (uploadedFile.uploading) { toast.error('Please wait, media file is uploading to the server... ⏳'); return; }
       setLoading(true); setLoadingStep('content');
-      const promptText = prompt.trim() || uploadedFile.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
+      const nameWithoutExt = uploadedFile.name.replace(/\.[^/.]+$/, '');
+      const isHash = isHashOrFilename(nameWithoutExt);
+      const promptText = prompt.trim() || (isHash ? 'A new social media post' : nameWithoutExt.replace(/[-_]/g, ' '));
       try {
         const { data } = await axios.post(
           `${API_BASE}/ai.php?action=generate-text`,
@@ -154,7 +219,7 @@ export default function ContentGenerator() {
         if (data.success) {
           setContent(prev => ({ ...prev, caption: data.caption, hashtags: data.hashtags, alternatives: data.alternatives || [], bestTimeToPost: data.bestTimeToPost || '', imageUrl: uploadedFile.dataUrl, imagePrompt: `Uploaded: ${uploadedFile.name}`, imageSize: { w: 1080, h: 1080 } }));
           setEditCaption(data.caption); setEditHashtags(data.hashtags?.join(' ') || '');
-          setStep(2); toast.success('✅ Content generated from uploaded media!');
+          setStep(1); toast.success('✅ Content generated from uploaded media!');
         }
       } catch (err) {
         toast.error('Content generation failed. Please check your API keys.');
@@ -296,6 +361,7 @@ export default function ContentGenerator() {
     // Reset
     setStep(0); setContent({ caption: '', hashtags: [], alternatives: [], bestTimeToPost: '', imageUrl: '', imagePrompt: '', imageSize: { w: 1080, h: 1080 }, videoScript: '', videoIdea: '', videoPrompt: '', scenes: [], duration: '', musicSuggestion: '' });
     setPrompt(''); setEditCaption(''); setEditHashtags(''); setUploadedFile(null); setUploadPreview(''); setMode('prompt'); setScheduleAt('');
+    setUseCustomContent(false); setCustomCaption(''); setCustomHashtags('');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   const copyToClipboard = (text) => { navigator.clipboard.writeText(text); toast.success('Copied! 📋'); };
@@ -378,58 +444,137 @@ export default function ContentGenerator() {
       {step === 0 && (
         <div className="glass rounded-2xl p-6 space-y-5">
 
-          {/* ── PROMPT MODE ── */}
+          {/* Custom Content Tab Selector */}
+          <div className="flex bg-gray-100 p-1 rounded-xl w-full sm:w-fit border border-gray-250/60">
+            <button
+              type="button"
+              onClick={() => setUseCustomContent(false)}
+              className={`flex-1 sm:flex-initial px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-all ${
+                !useCustomContent
+                  ? 'bg-white text-indigo-600 shadow-sm border border-indigo-100'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <Sparkles className="w-4 h-4 text-purple-500 animate-pulse" /> AI Generator
+            </button>
+            <button
+              type="button"
+              onClick={() => setUseCustomContent(true)}
+              className={`flex-1 sm:flex-initial px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-all ${
+                useCustomContent
+                  ? 'bg-white text-indigo-600 shadow-sm border border-indigo-100'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <Edit3 className="w-4 h-4 text-indigo-500" /> Custom Content
+            </button>
+          </div>
+
+          {/* ── PROMPT / CUSTOM TEXT INPUT (Prompt Mode) ── */}
           {mode === 'prompt' && (
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">🎯 Enter your idea/prompt</label>
-              <textarea value={prompt} onChange={e => setPrompt(e.target.value)}
-                placeholder="e.g., Diwali special offer - 50% off on all products, free delivery in Delhi NCR..."
-                className="w-full h-32 px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 transition resize-none text-gray-800 placeholder-gray-400" />
-              <p className="text-xs text-gray-400 mt-1">{prompt.length} chars</p>
-            </div>
+            useCustomContent ? (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">✍️ Custom Caption</label>
+                  <textarea
+                    value={customCaption}
+                    onChange={e => setCustomCaption(e.target.value)}
+                    placeholder="Write your custom caption here..."
+                    className="w-full h-32 px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 transition resize-none text-gray-800 placeholder-gray-400"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">#️⃣ Custom Hashtags</label>
+                  <input
+                    type="text"
+                    value={customHashtags}
+                    onChange={e => setCustomHashtags(e.target.value)}
+                    placeholder="e.g. #marketing #launch #mybrand (separated by space or comma)"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-indigo-400 focus:ring-2 text-sm text-gray-700 placeholder-gray-400"
+                  />
+                </div>
+              </div>
+            ) : (
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">🎯 Enter your idea/prompt</label>
+                <textarea value={prompt} onChange={e => setPrompt(e.target.value)}
+                  placeholder="e.g., Diwali special offer - 50% off on all products, free delivery in Delhi NCR..."
+                  className="w-full h-32 px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 transition resize-none text-gray-800 placeholder-gray-400" />
+                <p className="text-xs text-gray-400 mt-1">{prompt.length} chars</p>
+              </div>
+            )
           )}
 
           {/* ── UPLOAD MODE ── */}
           {mode === 'upload' && (
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Upload Image or Video 📤</label>
-              {!uploadedFile ? (
-                <div
-                  onClick={() => fileInputRef.current?.click()}
-                  className="border-2 border-dashed border-indigo-300 rounded-2xl p-8 text-center cursor-pointer hover:border-indigo-500 hover:bg-indigo-50/50 transition group">
-                  <UploadCloud className="w-12 h-12 text-indigo-300 mx-auto mb-3 group-hover:text-indigo-500 transition" />
-                  <p className="text-sm font-medium text-gray-600">Click to upload or drag & drop</p>
-                  <p className="text-xs text-gray-400 mt-1">JPG, PNG, GIF, MP4, MOV — Max 50MB</p>
-                  <input ref={fileInputRef} type="file" accept="image/*,video/*" onChange={handleFileUpload} className="hidden" />
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Upload Image or Video 📤</label>
+                {!uploadedFile ? (
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    className="border-2 border-dashed border-indigo-300 rounded-2xl p-8 text-center cursor-pointer hover:border-indigo-500 hover:bg-indigo-50/50 transition group">
+                    <UploadCloud className="w-12 h-12 text-indigo-300 mx-auto mb-3 group-hover:text-indigo-500 transition" />
+                    <p className="text-sm font-medium text-gray-600">Click to upload or drag & drop</p>
+                    <p className="text-xs text-gray-400 mt-1">JPG, PNG, GIF, MP4, MOV — Max 50MB</p>
+                    <input ref={fileInputRef} type="file" accept="image/*,video/*" onChange={handleFileUpload} className="hidden" />
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 p-3 rounded-xl bg-indigo-50">
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${uploadedFile.type === 'video' ? 'bg-rose-100' : 'bg-emerald-100'}`}>
+                        {uploadedFile.type === 'video' ? <Film className="w-5 h-5 text-rose-500" /> : <ImagePlus className="w-5 h-5 text-emerald-500" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-800 truncate">{uploadedFile.name}</p>
+                        <p className="text-xs text-gray-400">{(uploadedFile.size / 1024 / 1024).toFixed(1)} MB • {uploadedFile.type}</p>
+                      </div>
+                      <button onClick={removeUpload} className="p-1.5 rounded-lg hover:bg-red-100 text-gray-400 hover:text-red-500"><X className="w-4 h-4" /></button>
+                    </div>
+                    {/* Uploaded file preview */}
+                    <div className="rounded-xl overflow-hidden bg-gray-100 max-h-48 flex items-center justify-center w-full">
+                      {uploadedFile.type === 'video' ? (
+                        <video src={uploadPreview} controls className="w-full max-h-48 object-contain bg-black" />
+                      ) : (
+                        <img src={uploadPreview} alt="Uploaded" className="w-full max-h-48 object-cover" />
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Upload mode: AI vs Custom inputs */}
+              {useCustomContent ? (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">✍️ Custom Caption</label>
+                    <textarea
+                      value={customCaption}
+                      onChange={e => setCustomCaption(e.target.value)}
+                      placeholder="Write your custom caption here..."
+                      className="w-full h-24 px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 transition resize-none text-gray-800 placeholder-gray-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">#️⃣ Custom Hashtags</label>
+                    <input
+                      type="text"
+                      value={customHashtags}
+                      onChange={e => setCustomHashtags(e.target.value)}
+                      placeholder="e.g. #marketing #launch #mybrand (separated by space or comma)"
+                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-indigo-400 focus:ring-2 text-sm text-gray-700 placeholder-gray-400"
+                    />
+                  </div>
                 </div>
               ) : (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-indigo-50">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${uploadedFile.type === 'video' ? 'bg-rose-100' : 'bg-emerald-100'}`}>
-                      {uploadedFile.type === 'video' ? <Film className="w-5 h-5 text-rose-500" /> : <ImagePlus className="w-5 h-5 text-emerald-500" />}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-800 truncate">{uploadedFile.name}</p>
-                      <p className="text-xs text-gray-400">{(uploadedFile.size / 1024 / 1024).toFixed(1)} MB • {uploadedFile.type}</p>
-                    </div>
-                    <button onClick={removeUpload} className="p-1.5 rounded-lg hover:bg-red-100 text-gray-400 hover:text-red-500"><X className="w-4 h-4" /></button>
+                uploadedFile && (
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">🎯 Context for AI Caption</label>
+                    <input value={prompt} onChange={e => setPrompt(e.target.value)}
+                      placeholder="Optional: Add context/prompt for AI caption (e.g., Diwali Sale 50% off)"
+                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-indigo-400 focus:ring-2 text-sm text-gray-700 placeholder-gray-400" />
                   </div>
-                  {/* Uploaded file preview */}
-                  <div className="rounded-xl overflow-hidden bg-gray-100 max-h-48 flex items-center justify-center">
-                    {uploadedFile.type === 'video' ? (
-                      <div className="relative w-full">
-                        <img src={uploadPreview} alt="" className="w-full max-h-48 object-cover opacity-80" />
-                        <div className="absolute inset-0 flex items-center justify-center"><Play className="w-12 h-12 text-white fill-white drop-shadow-lg" /></div>
-                      </div>
-                    ) : (
-                      <img src={uploadPreview} alt="Uploaded" className="w-full max-h-48 object-cover" />
-                    )}
-                  </div>
-                  {/* Optional prompt for AI caption */}
-                  <input value={prompt} onChange={e => setPrompt(e.target.value)}
-                    placeholder="Optional: Add context/prompt for AI caption (e.g., Diwali Sale 50% off)"
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-indigo-400 focus:ring-2 text-sm text-gray-700" />
-                </div>
+                )
               )}
             </div>
           )}
@@ -497,8 +642,11 @@ export default function ContentGenerator() {
                   return (
                     <div key={p} className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition">
                       <div className="bg-gray-100 flex items-center justify-center overflow-hidden" style={{ height: Math.min(previewH, 100) }}>
-                        <img src={uploadPreview} alt={p}
-                          className="w-full h-full object-cover object-center" />
+                        {uploadedFile.type === 'video' ? (
+                          <video src={uploadPreview} className="w-full h-full object-cover" muted loop autoPlay />
+                        ) : (
+                          <img src={uploadPreview} alt={p} className="w-full h-full object-cover object-center" />
+                        )}
                       </div>
                       <div className="p-2 text-center">
                         <p className="text-[11px] font-semibold text-gray-700">{platformOptions.find(o => o.id === p)?.label}</p>
@@ -513,12 +661,24 @@ export default function ContentGenerator() {
           )}
 
           {/* ── GENERATE BUTTON ── */}
-          <button onClick={generateContent} disabled={loading || (!prompt.trim() && !uploadedFile)}
-            className="gradient-btn text-white px-8 py-4 rounded-xl font-semibold text-lg flex items-center gap-2 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed w-full md:w-auto justify-center">
+          <button 
+            onClick={generateContent} 
+            disabled={
+              loading || 
+              uploadedFile?.uploading || 
+              (useCustomContent 
+                ? !customCaption.trim() 
+                : (mode === 'prompt' ? !prompt.trim() : !uploadedFile))
+            }
+            className="gradient-btn text-white px-8 py-4 rounded-xl font-semibold text-lg flex items-center gap-2 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed w-full md:w-auto justify-center"
+          >
             {loading ? <><Loader2 className="w-5 h-5 animate-spin" /> Generating...</>
-              : mode === 'upload' && uploadedFile
-                ? <><Upload className="w-5 h-5" /> Analyze Media & Generate Content →</>
-                : <><Zap className="w-5 h-5" /> Generate Content →</>}
+              : uploadedFile?.uploading ? <><Loader2 className="w-5 h-5 animate-spin" /> Uploading media...</>
+              : useCustomContent
+                ? <><CheckSquare className="w-5 h-5" /> Apply Custom Content →</>
+                : mode === 'upload' && uploadedFile
+                  ? <><Upload className="w-5 h-5" /> Analyze Media & Generate Content →</>
+                  : <><Zap className="w-5 h-5" /> Generate Content →</>}
           </button>
         </div>
       )}
@@ -568,22 +728,43 @@ export default function ContentGenerator() {
             )}
             {step === 1 && (
               <div className="mt-5 flex gap-3">
-                <button onClick={generateImage} disabled={loading} className="gradient-btn text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 shadow-lg disabled:opacity-50">
-                  {loading && loadingStep === 'image' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Image className="w-4 h-4" />} Generate AI Image →
-                </button>
+                {mode === 'upload' ? (
+                  <>
+                    <button onClick={generateVideo} disabled={loading} className="gradient-btn text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 shadow-lg disabled:opacity-50">
+                      {loading && loadingStep === 'video' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Video className="w-4 h-4" />} Generate Video Script →
+                    </button>
+                    <button onClick={openPreview} className="px-6 py-3 rounded-xl bg-white border-2 border-indigo-300 hover:border-indigo-500 hover:bg-indigo-50 transition font-semibold text-indigo-700 flex items-center gap-2">
+                      <Eye className="w-4 h-4" /> Preview Post 🔍
+                    </button>
+                  </>
+                ) : (
+                  <button onClick={generateImage} disabled={loading} className="gradient-btn text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 shadow-lg disabled:opacity-50">
+                    {loading && loadingStep === 'image' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Image className="w-4 h-4" />} Generate AI Image →
+                  </button>
+                )}
               </div>
             )}
           </div>
 
           {/* Image Card */}
-          {step >= 2 && (
+          {(step >= 2 || (mode === 'upload' && step >= 1)) && (
             <div className="glass rounded-2xl p-6 border-l-4 border-emerald-400">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-gray-900 text-lg flex items-center gap-2"><Image className="w-5 h-5 text-emerald-500" />🖼️ AI Image <span className="text-xs font-normal text-gray-400 ml-2">({content.imageSize?.w}×{content.imageSize?.h} • {PLATFORM_SIZES[primaryPlatform]?.ratio})</span></h3>
+                <h3 className="font-semibold text-gray-900 text-lg flex items-center gap-2">
+                  {mode === 'upload' ? (
+                    <><Image className="w-5 h-5 text-emerald-500" /> Uploaded Media</>
+                  ) : (
+                    <><Image className="w-5 h-5 text-emerald-500" /> 🖼️ AI Image <span className="text-xs font-normal text-gray-400 ml-2">({content.imageSize?.w}×{content.imageSize?.h} • {PLATFORM_SIZES[primaryPlatform]?.ratio})</span></>
+                  )}
+                </h3>
                 <span className="text-xs text-gray-400">{primaryPlatform} optimized</span>
               </div>
               {content.imageUrl ? (
-                <img src={content.imageUrl} alt="AI Generated" className="w-full max-w-lg rounded-xl shadow-lg" onError={e => { e.target.src = 'https://placehold.co/1080x1080/6366f1/ffffff?text=Image'; }} />
+                isVideo(content.imageUrl) ? (
+                  <video src={content.imageUrl} controls className="w-full max-w-lg rounded-xl shadow-lg bg-black" />
+                ) : (
+                  <img src={content.imageUrl} alt="AI Generated" className="w-full max-w-lg rounded-xl shadow-lg" onError={e => { e.target.src = 'https://placehold.co/1080x1080/6366f1/ffffff?text=Image'; }} />
+                )
               ) : (
                 <div className="w-full max-w-lg h-64 rounded-xl bg-gray-100 flex items-center justify-center"><Camera className="w-12 h-12 text-gray-300" /></div>
               )}
@@ -625,7 +806,7 @@ export default function ContentGenerator() {
               <Eye className="w-5 h-5" /> Preview ({platforms.length} platforms)
             </button>
             <button onClick={handlePostNow} className="gradient-btn text-white px-6 py-3 rounded-xl font-medium flex items-center gap-2 shadow-lg"><Send className="w-5 h-5" /> Post Now</button>
-            <button onClick={() => { setStep(0); setContent({ caption: '', hashtags: [], alternatives: [], bestTimeToPost: '', imageUrl: '', imagePrompt: '', imageSize: { w: 1080, h: 1080 }, videoScript: '', videoIdea: '', videoPrompt: '', scenes: [], duration: '', musicSuggestion: '' }); setPrompt(''); setEditCaption(''); setEditHashtags(''); setUploadedFile(null); setUploadPreview(''); setMode('prompt'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+            <button onClick={() => { setStep(0); setContent({ caption: '', hashtags: [], alternatives: [], bestTimeToPost: '', imageUrl: '', imagePrompt: '', imageSize: { w: 1080, h: 1080 }, videoScript: '', videoIdea: '', videoPrompt: '', scenes: [], duration: '', musicSuggestion: '' }); setPrompt(''); setEditCaption(''); setEditHashtags(''); setUploadedFile(null); setUploadPreview(''); setMode('prompt'); setScheduleAt(''); setUseCustomContent(false); setCustomCaption(''); setCustomHashtags(''); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
               className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 font-medium text-gray-600"><X className="w-5 h-5" /> Clear & New</button>
           </div>
         </div>
