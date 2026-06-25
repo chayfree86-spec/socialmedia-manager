@@ -1,0 +1,27 @@
+{
+  "short_name": "SocialAI",
+  "name": "SocialAI - AI Social Media Manager",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    },
+    {
+      "src": "icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": ".",
+  "background_color": "#080614",
+  "theme_color": "#080614",
+  "display": "standalone",
+  "orientation": "portrait"
+}

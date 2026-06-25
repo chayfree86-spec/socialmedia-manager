@@ -106,6 +106,47 @@ export default function ContentGenerator() {
   const [uploadedFile, setUploadedFile] = useState(null); // { name, type, size, dataUrl }
   const [uploadPreview, setUploadPreview] = useState(''); // dataUrl for preview
   const fileInputRef = useRef(null);
+  const promptInputRef = useRef(null);
+  const [hoveredCard, setHoveredCard] = useState(null);
+
+  const quickActions = [
+    {
+      title: 'Generate Post',
+      icon: '✍️',
+      desc: 'Create engaging caption & text',
+      promptText: 'Write a social media post about ',
+    },
+    {
+      title: 'Generate Image',
+      icon: '🖼️',
+      desc: 'Design AI graphic prompt',
+      promptText: 'Design an eye-catching graphic image for a post about ',
+    },
+    {
+      title: 'Generate Video',
+      icon: '🎬',
+      desc: 'Write video script/reel idea',
+      promptText: 'Write a 30-second video script for a reel about ',
+    },
+    {
+      title: 'Generate Carousel',
+      icon: '🎠',
+      desc: 'Multi-slide layout & copy',
+      promptText: 'Create a multi-slide carousel outline and slide copy about ',
+    },
+    {
+      title: 'Generate Hashtags',
+      icon: '#️⃣',
+      desc: 'Trending & relevant tags',
+      promptText: 'Suggest highly engaging and trending hashtags for ',
+    },
+    {
+      title: 'Generate Calendar',
+      icon: '📅',
+      desc: 'Weekly planning schedule',
+      promptText: 'Create a weekly content calendar with daily post ideas about ',
+    },
+  ];
 
   const [editCaption, setEditCaption] = useState('');
   const [editHashtags, setEditHashtags] = useState('');
@@ -470,6 +511,51 @@ export default function ContentGenerator() {
             </button>
           </div>
 
+          {/* Quick Action Cards Grid */}
+          {!useCustomContent && (
+            <div className="space-y-2 mt-2">
+              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider">⚡ Quick Actions</label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {quickActions.map((action, idx) => {
+                  const isHovered = hoveredCard === idx;
+                  const brandColor = brand?.brandColor || '#4f46e5';
+                  return (
+                    <button
+                      key={idx}
+                      type="button"
+                      onMouseEnter={() => setHoveredCard(idx)}
+                      onMouseLeave={() => setHoveredCard(null)}
+                      onClick={() => {
+                        setMode('prompt');
+                        setPrompt(action.promptText);
+                        setTimeout(() => {
+                          promptInputRef.current?.focus();
+                        }, 50);
+                      }}
+                      style={{
+                        borderColor: isHovered ? brandColor : '#e5e7eb',
+                        boxShadow: isHovered ? `0 4px 12px ${brandColor}15` : 'none',
+                        transform: isHovered ? 'translateY(-2px)' : 'none'
+                      }}
+                      className="flex flex-col items-start p-4 rounded-xl border bg-white transition-all text-left duration-200 w-full active:scale-98"
+                    >
+                      <span className="text-2xl mb-1.5">{action.icon}</span>
+                      <span 
+                        style={{ color: isHovered ? brandColor : '#1f2937' }}
+                        className="text-xs font-bold transition-colors uppercase tracking-wider"
+                      >
+                        {action.title}
+                      </span>
+                      <span className="text-[10px] text-gray-450 mt-0.5 line-clamp-2 leading-snug">
+                        {action.desc}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* ── PROMPT / CUSTOM TEXT INPUT (Prompt Mode) ── */}
           {mode === 'prompt' && (
             useCustomContent ? (
@@ -497,7 +583,7 @@ export default function ContentGenerator() {
             ) : (
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">🎯 Enter your idea/prompt</label>
-                <textarea value={prompt} onChange={e => setPrompt(e.target.value)}
+                <textarea ref={promptInputRef} value={prompt} onChange={e => setPrompt(e.target.value)}
                   placeholder="e.g., Diwali special offer - 50% off on all products, free delivery in Delhi NCR..."
                   className="w-full h-32 px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 transition resize-none text-gray-800 placeholder-gray-400" />
                 <p className="text-xs text-gray-400 mt-1">{prompt.length} chars</p>

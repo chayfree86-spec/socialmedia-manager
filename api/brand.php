@@ -14,7 +14,8 @@ sendCorsHeaders();
 
 $method = $_SERVER['REQUEST_METHOD'];
 $userId        = $_GET['user_id'] ?? null;
-$explicitBizId = isset($_GET['business_id']) || isset($_POST['business_id']) || isset($_GET['id']) || isset($_POST['id']);
+$input = getJsonInput();
+$explicitBizId = isset($_GET['business_id']) || isset($_POST['business_id']) || isset($_GET['id']) || isset($_POST['id']) || isset($input['business_id']) || isset($input['businessId']) || isset($input['id']);
 $businessId    = getBusinessId();
 
 // Resolve numeric user_id: if 'default' or non-numeric, default to 1

@@ -5,7 +5,8 @@ import toast from 'react-hot-toast';
 import {
   Wand2, LayoutDashboard, CalendarCheck, FileText, Settings,
   Sparkles, Zap, TrendingUp, Camera, Video, Hash, Send, Link2, LogOut,
-  ChevronDown, Info, Building, Check, Mail, Phone, MapPin, X
+  ChevronDown, Info, Building, Check, Mail, Phone, MapPin, X,
+  ChevronLeft, ChevronRight, Menu
 } from 'lucide-react';
 import SocialIcon from './components/SocialIcons';
 import Dashboard from './pages/Dashboard';
@@ -15,6 +16,7 @@ import MediaLibrary from './pages/MediaLibrary';
 import SocialAccounts from './pages/SocialAccounts';
 import BrandSettings from './pages/BrandSettings';
 import Login from './pages/Login';
+import InstallPrompt from './components/InstallPrompt';
 
 const defaultSettings = {
   brandName: '',
@@ -53,6 +55,7 @@ const defaultSettings = {
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Authentication State
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -183,7 +186,7 @@ function App() {
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Sidebar - High Contrast */}
-      <aside className={`${sidebarOpen ? 'w-64' : 'w-16'} text-white transition-all duration-300 flex flex-col border-r border-indigo-500/30 flex-shrink-0`}
+      <aside className={`${sidebarOpen ? 'w-64' : 'w-16'} text-white transition-all duration-300 hidden lg:flex flex-col border-r border-indigo-500/30 flex-shrink-0`}
         style={{ background: '#080614' }}>
         {/* Logo */}
         <div className={`border-b border-white/10 ${sidebarOpen ? 'p-6' : 'p-3 flex justify-center'}`}>
@@ -259,16 +262,23 @@ function App() {
         {/* Toggle Sidebar */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className={`border-t border-white/10 text-gray-500 hover:text-white transition text-sm w-full flex ${
-            sidebarOpen ? 'p-4 text-left' : 'p-3.5 justify-center'
+          className={`border-t border-white/10 text-gray-400 hover:text-white hover:bg-white/5 transition text-sm flex items-center w-full font-medium ${
+            sidebarOpen ? 'p-4 gap-3 text-left' : 'p-3.5 justify-center'
           }`}
         >
-          {sidebarOpen ? '◀ Collapse' : '▶'}
+          {sidebarOpen ? (
+            <>
+              <ChevronLeft className="w-5 h-5 text-gray-400 flex-shrink-0" />
+              <span>Collapse</span>
+            </>
+          ) : (
+            <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0" />
+          )}
         </button>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-hidden w-full flex flex-col bg-slate-50/50">
+      <main className="flex-1 overflow-hidden w-full flex flex-col bg-slate-50/50 relative">
         {/* Top Header with Business Dropdown */}
         <header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-3 flex items-center justify-between flex-shrink-0 z-20 shadow-sm">
           <div className="flex items-center gap-3">
@@ -343,7 +353,7 @@ function App() {
         </header>
 
         {/* Page Content Body */}
-        <div className="flex-1 overflow-y-auto w-full">
+        <div className="flex-1 overflow-y-auto w-full pb-20 lg:pb-0">
           <Routes key={activeBusinessId}>
             <Route path="/" element={<Dashboard />} />
             <Route path="/generate" element={<ContentGenerator />} />
@@ -448,6 +458,160 @@ function App() {
           </div>
         </div>
       )}
+
+      {/* ============ MOBILE LEFT SIDE SLIDE-IN DRAWER ============ */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-40 lg:hidden">
+          {/* Backdrop */}
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
+          
+          {/* Drawer Panel */}
+          <div className="fixed top-0 bottom-0 left-0 w-72 bg-[#080614] border-r border-indigo-500/20 flex flex-col z-50 animate-in slide-in-from-left duration-250">
+            {/* Drawer Header */}
+            <div className="p-5 border-b border-white/10 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg gradient-btn flex items-center justify-center">
+                  <Sparkles className="w-4 h-4 text-white" />
+                </div>
+                <span className="font-bold text-white">SocialAI</span>
+              </div>
+              <button onClick={() => setMobileMenuOpen(false)} className="p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            {/* Profile Section */}
+            <div className="p-5 border-b border-white/10 bg-white/5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center font-bold text-indigo-400">
+                  {currentUser?.email ? currentUser.email.substring(0, 2).toUpperCase() : 'US'}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs text-gray-400 leading-none">Logged in as</p>
+                  <p className="text-sm font-bold text-white truncate mt-1">{currentUser?.email || 'user@socialmm.com'}</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Platform Status Section */}
+            <div className="p-5 border-b border-white/10">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Platform Status</p>
+              <div className="grid grid-cols-4 gap-2">
+                {['instagram', 'facebook', 'linkedin', 'youtube', 'whatsapp', 'pinterest', 'google_business'].map((p) => {
+                  const active = currentBusiness.activeSocials?.[p] === true;
+                  return (
+                    <div key={p} className={`p-2 rounded-xl flex flex-col items-center justify-center gap-1 border transition-all ${
+                      active 
+                        ? 'bg-indigo-500/10 border-indigo-500/30 text-indigo-400' 
+                        : 'bg-white/5 border-white/5 text-gray-500'
+                    }`} title={`${p}: ${active ? 'Connected' : 'Disconnected'}`}>
+                      <SocialIcon platform={p} size={18} />
+                      <span className="text-[9px] font-semibold uppercase">{p.substring(0, 2)}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            
+            {/* Navigation Drawer Menu */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-1">
+              <NavLink 
+                to="/media" 
+                onClick={() => setMobileMenuOpen(false)} 
+                className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition font-medium ${
+                  isActive ? 'bg-white/15 text-white' : 'text-gray-300 hover:bg-white/8 hover:text-white'
+                }`}
+              >
+                <Camera className="w-5 h-5 text-emerald-400" />
+                <span>Media Library</span>
+              </NavLink>
+              <NavLink 
+                to="/settings" 
+                onClick={() => setMobileMenuOpen(false)} 
+                className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition font-medium ${
+                  isActive ? 'bg-white/15 text-white' : 'text-gray-300 hover:bg-white/8 hover:text-white'
+                }`}
+              >
+                <Settings className="w-5 h-5 text-indigo-300" />
+                <span>Settings</span>
+              </NavLink>
+            </div>
+            
+            {/* Fixed Logout at Bottom */}
+            <div className="p-4 border-t border-white/10">
+              <button 
+                onClick={() => { setMobileMenuOpen(false); handleLogout(); }} 
+                className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 font-semibold text-sm transition"
+              >
+                <LogOut className="w-5 h-5" />
+                <span>Logout</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============ MOBILE FIXED BOTTOM NAVIGATION BAR ============ */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-[#080614]/95 backdrop-blur-md border-t border-white/10 z-35 px-2">
+        <div className="flex justify-around items-center h-full max-w-md mx-auto relative">
+          
+          {/* Dashboard */}
+          <NavLink 
+            to="/" 
+            className={({ isActive }) => `flex flex-col items-center gap-0.5 transition-all text-xs font-semibold ${
+              isActive ? 'text-indigo-400 drop-shadow-glow' : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <LayoutDashboard className="w-5 h-5" />
+            <span>Dashboard</span>
+          </NavLink>
+          
+          {/* Posts */}
+          <NavLink 
+            to="/posts" 
+            className={({ isActive }) => `flex flex-col items-center gap-0.5 transition-all text-xs font-semibold ${
+              isActive ? 'text-pink-400 drop-shadow-glow' : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <FileText className="w-5 h-5" />
+            <span>Posts</span>
+          </NavLink>
+
+          {/* AI Generate FAB (Center, Visually Dominant, Glowing Accent) */}
+          <NavLink 
+            to="/generate" 
+            className="relative -top-5 flex flex-col items-center animate-bounce-subtle"
+          >
+            <div className="w-14 h-14 rounded-full gradient-btn shadow-glow flex items-center justify-center border-4 border-[#080614] transition active:scale-95">
+              <Wand2 className="w-6 h-6 text-white" />
+            </div>
+            <span className="text-[10px] font-bold text-purple-400 mt-1 uppercase tracking-wider">AI Generate</span>
+          </NavLink>
+
+          {/* Accounts */}
+          <NavLink 
+            to="/accounts" 
+            className={({ isActive }) => `flex flex-col items-center gap-0.5 transition-all text-xs font-semibold ${
+              isActive ? 'text-amber-400 drop-shadow-glow' : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <Link2 className="w-5 h-5" />
+            <span>Accounts</span>
+          </NavLink>
+
+          {/* Menu / Drawer Trigger (Hamburger) */}
+          <button 
+            onClick={() => setMobileMenuOpen(true)}
+            className="flex flex-col items-center gap-0.5 transition-all text-xs font-semibold text-gray-400 hover:text-white focus:outline-none animate-in fade-in"
+          >
+            <Menu className="w-5 h-5 text-gray-400 hover:text-white" />
+            <span>Menu</span>
+          </button>
+        </div>
+      </div>
+
+      {/* PWA Install App Prompt */}
+      <InstallPrompt />
     </div>
   );
 }
