@@ -62,7 +62,15 @@ const getAiHeaders = () => {
 export default function ContentGenerator() {
   const location = useLocation();
   const [prompt, setPrompt] = useState(location.state?.prompt || '');
-  const [brand, setBrand] = useState(null);
+  const [brand, setBrand] = useState(() => {
+    const saved = localStorage.getItem('brand_settings');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return null;
+  });
 
   // Step: 0=input, 1=content, 2=image, 3=video, 4=preview
   const [step, setStep] = useState(0);

@@ -20,6 +20,7 @@ const defaultSettings = {
   logoColor: '',
   logoWhite: '',
   logoBlack: '',
+  logoSelected: 'logoWhite',
   phone: '',
   email: '',
   address: '',
@@ -77,13 +78,33 @@ const POSITION_OPTIONS_WITHOUT_CENTER = [
 ];
 
 export default function BrandSettings() {
-  const [settings, setSettings] = useState(defaultSettings);
+  const [settings, setSettings] = useState(() => {
+    const saved = localStorage.getItem('brand_settings');
+    if (saved) {
+      try {
+        return { ...defaultSettings, ...JSON.parse(saved) };
+      } catch (e) {}
+    }
+    return defaultSettings;
+  });
   const [previewMode, setPreviewMode] = useState('image'); // image, video
   const [activeTab, setActiveTab] = useState('identity'); // identity, overlay, layout, ai_config
 
   // Multiple businesses state
-  const [businessesList, setBusinessesList] = useState([]);
-  const [activeBizId, setActiveBizId] = useState('biz_default');
+  const [businessesList, setBusinessesList] = useState(() => {
+    const saved = localStorage.getItem('socialai_businesses');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return [];
+  });
+  const [activeBizId, setActiveBizId] = useState(() => {
+    return localStorage.getItem('socialai_active_business_id') || '1';
+  });
+
+  const selectedLogoUrl = settings[settings.logoSelected || 'logoWhite'] || settings.logoColor || settings.logoWhite || settings.logoBlack;
 
   const [newBizName, setNewBizName] = useState('');
   const [newBizPhone, setNewBizPhone] = useState('');
@@ -117,6 +138,7 @@ export default function BrandSettings() {
             logoColor: brand.logoColor || '',
             logoWhite: brand.logoWhite || '',
             logoBlack: brand.logoBlack || '',
+            logoSelected: brand.logoSelected || 'logoWhite',
             phone: brand.phone || '',
             email: brand.email || '',
             address: brand.address || '',
@@ -181,6 +203,8 @@ export default function BrandSettings() {
         logo_color: newSettings.logoColor,
         logo_white: newSettings.logoWhite,
         logo_black: newSettings.logoBlack,
+        logoSelected: newSettings.logoSelected || 'logoWhite',
+        logo_selected: newSettings.logoSelected || 'logoWhite',
         logoSize: newSettings.logoSize,
         logo_size: newSettings.logoSize,
         showLogo: newSettings.showLogo,
@@ -615,7 +639,18 @@ export default function BrandSettings() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {/* Color Logo */}
-                  <div className="border border-gray-200 rounded-2xl p-4 flex flex-col items-center justify-between text-center bg-gray-50/50 hover:bg-gray-50 transition min-h-[170px]">
+                  <div 
+                    onClick={() => handleInputChange('logoSelected', 'logoColor')}
+                    style={{ borderColor: (settings.logoSelected || 'logoWhite') === 'logoColor' ? settings.brandColor : undefined }}
+                    className={`cursor-pointer border-2 rounded-2xl p-4 flex flex-col items-center justify-between text-center transition min-h-[170px] relative ${
+                      (settings.logoSelected || 'logoWhite') === 'logoColor' ? 'bg-gray-50/70 shadow-md font-semibold' : 'border-gray-200 bg-gray-50/50 hover:bg-gray-50'
+                    }`}
+                  >
+                    {(settings.logoSelected || 'logoWhite') === 'logoColor' && (
+                      <div className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full flex items-center justify-center text-white" style={{ backgroundColor: settings.brandColor }}>
+                        <Check className="w-3.5 h-3.5" />
+                      </div>
+                    )}
                     <span className="text-xs font-bold text-gray-600 mb-2">Color Logo</span>
                     <div className="w-16 h-16 rounded-xl border border-dashed border-gray-300 flex items-center justify-center bg-white overflow-hidden shadow-inner">
                       {settings.logoColor ? (
@@ -626,7 +661,7 @@ export default function BrandSettings() {
                         </div>
                       )}
                     </div>
-                    <label className="mt-3 cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition hover:brightness-95" style={{ backgroundColor: `${settings.brandColor}1a`, color: settings.brandColor }}>
+                    <label onClick={(e) => e.stopPropagation()} className="mt-3 cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition hover:brightness-95" style={{ backgroundColor: `${settings.brandColor}1a`, color: settings.brandColor }}>
                       <Upload className="w-3.5 h-3.5" />
                       Upload
                       <input type="file" accept="image/*" className="hidden" onChange={(e) => handleLogoUpload('logoColor', e)} />
@@ -634,7 +669,18 @@ export default function BrandSettings() {
                   </div>
 
                   {/* White Logo */}
-                  <div className="border border-gray-200 rounded-2xl p-4 flex flex-col items-center justify-between text-center bg-slate-900 text-white min-h-[170px] shadow-lg">
+                  <div 
+                    onClick={() => handleInputChange('logoSelected', 'logoWhite')}
+                    style={{ borderColor: (settings.logoSelected || 'logoWhite') === 'logoWhite' ? settings.brandColor : 'transparent' }}
+                    className={`cursor-pointer border-2 rounded-2xl p-4 flex flex-col items-center justify-between text-center bg-slate-900 text-white min-h-[170px] relative ${
+                      (settings.logoSelected || 'logoWhite') === 'logoWhite' ? 'shadow-lg' : 'border-gray-200'
+                    }`}
+                  >
+                    {(settings.logoSelected || 'logoWhite') === 'logoWhite' && (
+                      <div className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full flex items-center justify-center text-white" style={{ backgroundColor: settings.brandColor }}>
+                        <Check className="w-3.5 h-3.5" />
+                      </div>
+                    )}
                     <span className="text-xs font-bold text-slate-300 mb-2">White Logo</span>
                     <div className="w-16 h-16 rounded-xl border border-dashed border-slate-700 flex items-center justify-center bg-white/5 overflow-hidden">
                       {settings.logoWhite ? (
@@ -645,7 +691,7 @@ export default function BrandSettings() {
                         </div>
                       )}
                     </div>
-                    <label className="mt-3 cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition">
+                    <label onClick={(e) => e.stopPropagation()} className="mt-3 cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition">
                       <Upload className="w-3.5 h-3.5" />
                       Upload
                       <input type="file" accept="image/*" className="hidden" onChange={(e) => handleLogoUpload('logoWhite', e)} />
@@ -653,7 +699,18 @@ export default function BrandSettings() {
                   </div>
 
                   {/* Black Logo */}
-                  <div className="border border-gray-200 rounded-2xl p-4 flex flex-col items-center justify-between text-center bg-white min-h-[170px]">
+                  <div 
+                    onClick={() => handleInputChange('logoSelected', 'logoBlack')}
+                    style={{ borderColor: (settings.logoSelected || 'logoWhite') === 'logoBlack' ? settings.brandColor : undefined }}
+                    className={`cursor-pointer border-2 rounded-2xl p-4 flex flex-col items-center justify-between text-center transition min-h-[170px] relative ${
+                      (settings.logoSelected || 'logoWhite') === 'logoBlack' ? 'bg-gray-50/70 shadow-md font-semibold' : 'border-gray-200 bg-white hover:bg-gray-50'
+                    }`}
+                  >
+                    {(settings.logoSelected || 'logoWhite') === 'logoBlack' && (
+                      <div className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full flex items-center justify-center text-white" style={{ backgroundColor: settings.brandColor }}>
+                        <Check className="w-3.5 h-3.5" />
+                      </div>
+                    )}
                     <span className="text-xs font-bold text-gray-600 mb-2">Black Logo</span>
                     <div className="w-16 h-16 rounded-xl border border-dashed border-gray-300 flex items-center justify-center bg-gray-50 overflow-hidden">
                       {settings.logoBlack ? (
@@ -664,7 +721,7 @@ export default function BrandSettings() {
                         </div>
                       )}
                     </div>
-                    <label className="mt-3 cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold transition">
+                    <label onClick={(e) => e.stopPropagation()} className="mt-3 cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold transition">
                       <Upload className="w-3.5 h-3.5" />
                       Upload
                       <input type="file" accept="image/*" className="hidden" onChange={(e) => handleLogoUpload('logoBlack', e)} />
@@ -1343,8 +1400,8 @@ export default function BrandSettings() {
                 {/* Logo in Banner */}
                 {settings.showLogo && (
                   <div className={layoutStyles.logo.position}>
-                    {settings.logoWhite ? (
-                      <img src={settings.logoWhite} style={layoutStyles.logo.style} className="object-contain" alt="Logo" />
+                    {selectedLogoUrl ? (
+                      <img src={selectedLogoUrl} style={layoutStyles.logo.style} className="object-contain" alt="Logo" />
                     ) : (
                       <div className="text-[10px] font-black text-slate-800 bg-white rounded flex items-center justify-center" style={{ width: '28px', height: '28px' }}>
                         {getInitials(settings.brandName)}
@@ -1387,17 +1444,13 @@ export default function BrandSettings() {
                 {/* 1. Brand Logo */}
                 {settings.showLogo && (
                   <div className={layoutStyles.logo.position}>
-                    {settings.selectedLayout === 'modern' ? (
-                      settings.logoWhite ? (
-                        <img src={settings.logoWhite} style={layoutStyles.logo.style} alt="Watermark Logo" />
-                      ) : (
+                    {selectedLogoUrl ? (
+                      <img src={selectedLogoUrl} style={layoutStyles.logo.style} className="rounded-xl object-contain shadow-md" alt="Logo" />
+                    ) : (
+                      settings.selectedLayout === 'modern' ? (
                         <div className="font-extrabold text-white/20 border-4 border-white/10 rounded-full flex items-center justify-center select-none" style={{ width: '100px', height: '100px', fontSize: '28px' }}>
                           {getInitials(settings.brandName)}
                         </div>
-                      )
-                    ) : (
-                      settings.logoColor ? (
-                        <img src={settings.logoColor} style={layoutStyles.logo.style} className="rounded-xl object-contain shadow-md" alt="Logo" />
                       ) : (
                         <div className="font-extrabold text-white rounded-xl flex items-center justify-center shadow-lg border border-white/15" style={{ ...layoutStyles.logo.style, height: `${settings.logoSize}px`, backgroundColor: settings.brandColor }}>
                           {getInitials(settings.brandName)}
