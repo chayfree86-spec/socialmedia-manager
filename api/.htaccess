@@ -1,0 +1,53 @@
+RewriteEngine On
+
+# Handle CORS preflight
+RewriteCond %{REQUEST_METHOD} OPTIONS
+RewriteRule ^(.*)$ $1 [R=200,L]
+
+# Route /api/brand                    → brand.php
+# Route /api/posts                    → posts.php
+# Route /api/posts/analytics/summary  → posts.php?action=analytics
+# Route /api/posts/123                → posts.php?id=123
+# Route /api/posts/123/publish        → posts.php?action=publish&id=123
+# Route /api/social                   → social.php
+# Route /api/social/connect           → social.php?action=connect
+# Route /api/social/summary/platforms → social.php?action=summary
+# Route /api/social/123               → social.php?id=123
+# Route /api/ai/generate-all          → ai.php?action=generate-all
+# Route /api/ai/generate-text         → ai.php?action=generate-text
+# Route /api/ai/generate-image        → ai.php?action=generate-image
+# Route /api/ai/generate-video        → ai.php?action=generate-video
+# Route /api/auth/login               → auth.php?action=login
+# Route /api/auth/verify-otp          → auth.php?action=verify-otp
+
+RewriteRule ^api/brand/?$                    api/brand.php [QSA,L]
+RewriteRule ^api/social/brand/?$             api/brand.php [QSA,L]
+
+# Posts routes
+RewriteRule ^api/posts/analytics/summary/?$  api/posts.php?action=analytics [QSA,L]
+RewriteRule ^api/posts/([0-9]+)/publish/?$   api/posts.php?action=publish&id=$1 [QSA,L]
+RewriteRule ^api/posts/([0-9]+)/?$           api/posts.php?id=$1 [QSA,L]
+RewriteRule ^api/posts/?$                    api/posts.php [QSA,L]
+
+# Social routes
+RewriteRule ^api/social/connect/?$           api/social.php?action=connect [QSA,L]
+RewriteRule ^api/social/summary/platforms/?$ api/social.php?action=summary [QSA,L]
+RewriteRule ^api/social/([0-9]+)/?$          api/social.php?id=$1 [QSA,L]
+RewriteRule ^api/social/?$                   api/social.php [QSA,L]
+
+# AI routes
+RewriteRule ^api/ai/generate-all/?$          api/ai.php?action=generate-all [QSA,L]
+RewriteRule ^api/ai/generate-text/?$         api/ai.php?action=generate-text [QSA,L]
+RewriteRule ^api/ai/generate-image/?$        api/ai.php?action=generate-image [QSA,L]
+RewriteRule ^api/ai/generate-video/?$        api/ai.php?action=generate-video [QSA,L]
+RewriteRule ^api/ai/platform-variations/?$   api/ai.php?action=platform-variations [QSA,L]
+RewriteRule ^api/ai/?$                       api/ai.php [QSA,L]
+
+# Auth routes
+RewriteRule ^api/auth/login/?$               api/auth.php?action=login [QSA,L]
+RewriteRule ^api/auth/verify-otp/?$          api/auth.php?action=verify-otp [QSA,L]
+RewriteRule ^api/auth/logout/?$              api/auth.php?action=logout [QSA,L]
+RewriteRule ^api/auth/?$                     api/auth.php [QSA,L]
+
+# Health check
+RewriteRule ^api/health/?$                   api/health.php [QSA,L]

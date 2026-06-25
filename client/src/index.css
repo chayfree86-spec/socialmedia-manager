@@ -1,0 +1,262 @@
+@import url('https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Arimo', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #f9fafb;
+  color: #18181b;
+  min-height: 100vh;
+  letter-spacing: -0.01em;
+}
+
+/* ── High Contrast Glass Panels ── */
+.glass {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), 0 8px 24px rgba(0, 0, 0, 0.04);
+}
+
+.glass-dark {
+  background: rgba(15, 13, 26, 0.96);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
+}
+
+/* ── High Contrast Typography ── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Arimo', system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #0f0d1a;
+}
+
+p, li, label {
+  font-weight: 450;
+}
+
+.text-muted { color: #71717a; }
+.text-strong { color: #09090b; font-weight: 600; }
+
+
+/* ── Vibrant Gradients ── */
+.gradient-text {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed, #db2777);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+}
+
+.gradient-btn {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #a21caf 100%);
+  background-size: 200% 200%;
+  animation: gradient 3s ease infinite;
+  transition: all 0.3s ease;
+  color: #ffffff;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  border: none;
+}
+
+.gradient-btn:hover {
+  box-shadow: 0 8px 32px rgba(79, 70, 229, 0.45);
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+
+.gradient-btn:active {
+  transform: translateY(0);
+  filter: brightness(0.95);
+}
+
+/* ── Cards ── */
+.card-hover {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(79, 70, 229, 0.2);
+  border-color: rgba(79, 70, 229, 0.3);
+}
+
+/* ── Buttons & Inputs ── */
+input, textarea, select {
+  font-family: 'Arimo', system-ui, sans-serif;
+  color: #18181b;
+  font-weight: 450;
+  color-scheme: light;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #a1a1aa;
+  font-weight: 300;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: #4f46e5;
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.08);
+}
+
+/* Custom Calendar Picker Styling */
+input[type="datetime-local"] {
+  position: relative;
+}
+
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(24%) sepia(89%) saturate(4561%) hue-rotate(241deg) brightness(97%) contrast(90%); /* Indigo color matching the theme */
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+.border-gray-250 {
+  border-color: #e4e4e7;
+}
+
+.border-gray-150 {
+  border-color: #f4f4f5;
+}
+
+/* ── Status Indicators ── */
+.pulse-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 8px rgba(34, 197, 94, 0.5); }
+  50% { opacity: 0.6; transform: scale(1.6); box-shadow: 0 0 16px rgba(34, 197, 94, 0.8); }
+}
+
+/* ── Contrast Borders ── */
+.border-contrast { border-color: rgba(0, 0, 0, 0.08); }
+.border-accent { border-color: rgba(79, 70, 229, 0.15); }
+
+/* ── Scrollbar ── */
+main,
+#root,
+.overflow-y-auto,
+.overflow-x-auto,
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #d4d4d8 #f4f4f5;
+}
+
+main::-webkit-scrollbar,
+#root::-webkit-scrollbar,
+.overflow-y-auto::-webkit-scrollbar,
+.overflow-x-auto::-webkit-scrollbar,
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+main::-webkit-scrollbar-track,
+#root::-webkit-scrollbar-track,
+.overflow-y-auto::-webkit-scrollbar-track,
+.overflow-x-auto::-webkit-scrollbar-track,
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f4f4f5;
+}
+
+main::-webkit-scrollbar-thumb,
+#root::-webkit-scrollbar-thumb,
+.overflow-y-auto::-webkit-scrollbar-thumb,
+.overflow-x-auto::-webkit-scrollbar-thumb,
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #d4d4d8;
+  border-radius: 3px;
+}
+
+main::-webkit-scrollbar-thumb:hover,
+#root::-webkit-scrollbar-thumb:hover,
+.overflow-y-auto::-webkit-scrollbar-thumb:hover,
+.overflow-x-auto::-webkit-scrollbar-thumb:hover,
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #a1a1aa;
+}
+
+/* ── Spinner ── */
+.spinner {
+  width: 40px; height: 40px;
+  border: 3px solid #e0e7ff;
+  border-top-color: #4f46e5;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Selection ── */
+::selection {
+  background: rgba(79, 70, 229, 0.2);
+  color: #1e1b4b;
+}
+
+/* ── Focus Ring ── */
+.focus-ring:focus-visible {
+  outline: 2px solid #4f46e5;
+  outline-offset: 2px;
+}
+
+/* ── High Contrast Tags/Badges ── */
+.tag-high {
+  background: #eef2ff;
+  color: #312e81;
+  font-weight: 600;
+  border: 1px solid #c7d2fe;
+}
+
+/* ── Premium Floating Animations for Background Elements ── */
+@keyframes float-1 {
+  0%, 100% { transform: translateY(0px) rotate(-6deg); }
+  50% { transform: translateY(-12px) rotate(-4deg); }
+}
+
+@keyframes float-2 {
+  0%, 100% { transform: translateY(0px) rotate(6deg); }
+  50% { transform: translateY(12px) rotate(8deg); }
+}
+
+@keyframes float-3 {
+  0%, 100% { transform: translateY(0px) rotate(4deg); }
+  50% { transform: translateY(-10px) rotate(2deg); }
+}
+
+@keyframes float-4 {
+  0%, 100% { transform: translateY(0px) rotate(-3deg); }
+  50% { transform: translateY(10px) rotate(-5deg); }
+}
+
+.animate-float-insta {
+  animation: float-1 8s ease-in-out infinite;
+}
+
+.animate-float-fb {
+  animation: float-2 9s ease-in-out infinite;
+}
+
+.animate-float-google {
+  animation: float-3 10s ease-in-out infinite;
+}
+
+.animate-float-linkedin {
+  animation: float-4 11s ease-in-out infinite;
+}

@@ -1,0 +1,37 @@
+RewriteEngine On
+
+# If the request is for an actual file or directory, serve it directly
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# /api/auth.php?action=login
+RewriteRule ^api/auth$ api/auth.php [QSA,L]
+
+# /api/ai.php?action=generate-text  →  /api/ai/generate-text
+# /api/ai.php?action=generate-image →  /api/ai/generate-image
+# /api/ai.php?action=generate-video →  /api/ai/generate-video
+# /api/ai.php?action=generate-all   →  /api/ai/generate-all
+RewriteRule ^api/ai/(.+)$ api/ai.php?action=$1 [QSA,L]
+
+# /api/posts.php           →  /api/posts
+# /api/posts.php?id=1      →  /api/posts/1
+# /api/posts.php?action=publish&id=1 → /api/posts/1/publish
+RewriteRule ^api/posts/([0-9]+)/publish$ api/posts.php?action=publish&id=$1 [QSA,L]
+RewriteRule ^api/posts/([0-9]+)$ api/posts.php?id=$1 [QSA,L]
+RewriteRule ^api/posts$ api/posts.php [QSA,L]
+
+# /api/social.php              →  /api/social
+# /api/social.php?id=1         →  /api/social/1
+# /api/social.php?action=connect    →  /api/social/connect
+# /api/social.php?action=summary    →  /api/social/summary
+RewriteRule ^api/social/connect$ api/social.php?action=connect [QSA,L]
+RewriteRule ^api/social/summary$ api/social.php?action=summary [QSA,L]
+RewriteRule ^api/social/([0-9]+)$ api/social.php?id=$1 [QSA,L]
+RewriteRule ^api/social$ api/social.php [QSA,L]
+
+# /api/brand.php → /api/brand
+RewriteRule ^api/brand$ api/brand.php [QSA,L]
+
+# /api/health.php → /api/health
+RewriteRule ^api/health$ api/health.php [QSA,L]
