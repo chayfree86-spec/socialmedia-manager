@@ -54,7 +54,16 @@ function sendBrevoEmail($toEmail, $toName, $subject, $htmlContent) {
     
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
     curl_close($ch);
+
+    // Save log for debugging
+    $logDir = __DIR__ . '/uploads';
+    if (!is_dir($logDir)) {
+        @mkdir($logDir, 0777, true);
+    }
+    $logMsg = date('[Y-m-d H:i:s]') . " To: $toEmail, Code: $httpCode, Error: $curlError, Response: $response\n";
+    @file_put_contents($logDir . '/brevo_log.txt', $logMsg, FILE_APPEND);
 
     return ($httpCode >= 200 && $httpCode < 300);
 }
