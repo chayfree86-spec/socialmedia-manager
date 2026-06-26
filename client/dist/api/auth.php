@@ -30,7 +30,7 @@ function sendBrevoEmail($toEmail, $toName, $subject, $htmlContent) {
     $data = [
         'sender' => [
             'name' => 'SocialAI',
-            'email' => 'aff526001@smtp-brevo.com'
+            'email' => 'chayfree86@gmail.com'
         ],
         'to' => [
             [
