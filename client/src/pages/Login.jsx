@@ -34,10 +34,12 @@ export default function Login({ onLogin }) {
 
     setLoading(true);
     try {
+      const deviceToken = localStorage.getItem('socialai_device_token');
       const { data } = await axios.post(`${API_BASE}/auth.php?action=login`, {
         email: email.trim(),
         password: password,
-        remember_me: rememberMe
+        remember_me: rememberMe,
+        device_token: deviceToken
       });
 
       if (data.success) {
@@ -74,6 +76,9 @@ export default function Login({ onLogin }) {
       });
 
       if (data.success) {
+        if (data.token) {
+          localStorage.setItem('socialai_device_token', data.token);
+        }
         toast.success('Email verified successfully! Logging you in... 🚀');
         onLogin(data.user?.email || email, rememberMe);
       } else {

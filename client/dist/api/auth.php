@@ -72,9 +72,10 @@ function sendBrevoEmail($toEmail, $toName, $subject, $htmlContent) {
 // LOGIN
 // ============================================
 if ($action === 'login') {
-    $email      = trim($input['email'] ?? '');
-    $password   = $input['password'] ?? '';
-    $rememberMe = (bool)($input['rememberMe'] ?? $input['remember_me'] ?? false);
+    $email       = trim($input['email'] ?? '');
+    $password    = $input['password'] ?? '';
+    $rememberMe  = (bool)($input['rememberMe'] ?? $input['remember_me'] ?? false);
+    $deviceToken = trim($input['device_token'] ?? $input['deviceToken'] ?? '');
 
     if (empty($email) || empty($password)) {
         jsonError('Please enter both email and password.');
@@ -85,6 +86,27 @@ if ($action === 'login') {
 
         if (!$user || !password_verify($password, $user['password_hash'])) {
             jsonError('Invalid email or password.');
+        }
+
+        // Check if device is already verified
+        $deviceVerified = false;
+        if (!empty($deviceToken) && !empty($user['remember_token'])) {
+            $tokens = explode(',', $user['remember_token']);
+            if (in_array($deviceToken, $tokens)) {
+                $deviceVerified = true;
+            }
+        }
+
+        if ($deviceVerified) {
+            // Bypass OTP and log in directly
+            jsonSuccess([
+                'message' => 'Logged in successfully! 🚀',
+                'user'    => [
+                    'id'    => $user['id'],
+                    'email' => $user['email'],
+                    'name'  => $user['name'],
+                ]
+            ]);
         }
 
         // Generate 6-digit OTP code
@@ -156,19 +178,25 @@ elseif ($action === 'verify-otp' || $action === 'verify_otp') {
             jsonError('Incorrect OTP code. Please try again.');
         }
 
-        // Generate remember token
-        $token = bin2hex(random_bytes(32));
-        if ($rememberMe) {
-            $db->execute(
-                "UPDATE users SET otp_code = NULL, otp_expiry = NULL, remember_token = ? WHERE id = ?",
-                [$token, $user['id']]
-            );
-        } else {
-            $db->execute(
-                "UPDATE users SET otp_code = NULL, otp_expiry = NULL WHERE id = ?",
-                [$user['id']]
-            );
+        // Generate remember token (device token)
+        $token = bin2hex(random_bytes(16));
+        
+        // Append to existing tokens to support multiple devices (max 5)
+        $existingTokens = [];
+        if (!empty($user['remember_token'])) {
+            $existingTokens = explode(',', $user['remember_token']);
         }
+        $existingTokens = array_filter($existingTokens);
+        if (count($existingTokens) >= 5) {
+            $existingTokens = array_slice($existingTokens, -4);
+        }
+        $existingTokens[] = $token;
+        $newRememberToken = implode(',', $existingTokens);
+
+        $db->execute(
+            "UPDATE users SET otp_code = NULL, otp_expiry = NULL, remember_token = ? WHERE id = ?",
+            [$newRememberToken, $user['id']]
+        );
 
         jsonSuccess([
             'message' => 'Email verified successfully! Logging you in... 🚀',
@@ -177,7 +205,7 @@ elseif ($action === 'verify-otp' || $action === 'verify_otp') {
                 'email' => $user['email'],
                 'name'  => $user['name'],
             ],
-            'token'   => $rememberMe ? $token : null,
+            'token'   => $token,
         ]);
 
     } catch (Exception $e) {
