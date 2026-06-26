@@ -3,8 +3,8 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import {
   FileText, Send, Calendar, CheckCircle, Clock, XCircle,
-  Trash2, Edit3, Eye, Search, Copy, Check, ExternalLink,
-  ChevronRight, Sparkles, MessageSquare, AlertCircle
+  Trash2, Edit3, Eye, Search, Copy, Check,
+  ChevronRight, Sparkles, MessageSquare
 } from 'lucide-react';
 import SocialIcon from '../components/SocialIcons';
 

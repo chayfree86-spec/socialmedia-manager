@@ -5,10 +5,9 @@ import toast from 'react-hot-toast';
 import {
   Wand2, Sparkles, Image, Video, Hash, Send, Clock, Calendar,
   Copy, RefreshCw, Check, Loader2, X,
-  Camera, Play, Languages, Smile, Zap,
+  Camera, Play, Smile,
   ChevronRight, ChevronLeft, Edit3, Eye,
-  Smartphone, Monitor, ArrowRight, Upload, UploadCloud,
-  ImagePlus, Film, CheckSquare, Square, LayoutGrid
+  Smartphone, ArrowRight, Upload
 } from 'lucide-react';
 import PostPreview from '../components/PostPreview';
 import SocialIcon from '../components/SocialIcons';

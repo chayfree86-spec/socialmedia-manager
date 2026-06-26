@@ -2,12 +2,10 @@ import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import {
-  Settings, Upload, Layout, Eye, Check, RotateCcw, Sliders,
-  Globe, Mail, Phone, MapPin, Sparkles, Play, Image, Save,
+  Settings, Upload, Eye, Check,
+  Mail, Phone, MapPin, Sparkles, Play, Image, Save,
   CheckCircle2, AlertCircle, Info, ChevronRight, FileText,
-  SlidersHorizontal, LayoutTemplate, Lock, Key, Cpu,
-  ArrowUpLeft, ArrowUpRight, Move, ArrowDownLeft, ArrowDownRight,
-  Building, Trash2, Plus
+  Trash2, Plus
 } from 'lucide-react';
 import CustomDropdown from '../components/CustomDropdown';
 import SocialIcon from '../components/SocialIcons';

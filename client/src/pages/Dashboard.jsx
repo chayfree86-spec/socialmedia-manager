@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {
-  Wand2, Sparkles, ArrowRight, TrendingUp, Heart, Eye,
-  Share2, Link2, Unlink, Users, Send, BarChart2,
-  RefreshCw, ExternalLink, CheckCircle2, Plus, Camera
+  Wand2, Sparkles, TrendingUp, Heart,
+  Share2, Link2, Users, Send,
+  ExternalLink, CheckCircle2, Plus, Camera
 } from 'lucide-react';
 import SocialIcon from '../components/SocialIcons';
 

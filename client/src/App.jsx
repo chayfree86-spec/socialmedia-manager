@@ -1,22 +1,23 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { Routes, Route, NavLink } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import {
-  Wand2, LayoutDashboard, CalendarCheck, FileText, Settings,
-  Sparkles, Zap, TrendingUp, Camera, Video, Hash, Send, Link2, LogOut,
+  Wand2, LayoutDashboard, FileText, Settings,
+  Sparkles, Camera, Link2, LogOut,
   ChevronDown, Info, Building, Check, Mail, Phone, MapPin, X,
   ChevronLeft, ChevronRight, Menu
 } from 'lucide-react';
 import SocialIcon from './components/SocialIcons';
-import Dashboard from './pages/Dashboard';
-import ContentGenerator from './pages/ContentGenerator';
-import PostManager from './pages/PostManager';
-import MediaLibrary from './pages/MediaLibrary';
-import SocialAccounts from './pages/SocialAccounts';
-import BrandSettings from './pages/BrandSettings';
 import Login from './pages/Login';
 import InstallPrompt from './components/InstallPrompt';
+
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const ContentGenerator = lazy(() => import('./pages/ContentGenerator'));
+const PostManager = lazy(() => import('./pages/PostManager'));
+const MediaLibrary = lazy(() => import('./pages/MediaLibrary'));
+const SocialAccounts = lazy(() => import('./pages/SocialAccounts'));
+const BrandSettings = lazy(() => import('./pages/BrandSettings'));
 
 const defaultSettings = {
   brandName: '',
@@ -364,14 +365,20 @@ function App() {
 
         {/* Page Content Body */}
         <div className="flex-1 overflow-y-auto w-full pb-20 lg:pb-0">
-          <Routes key={activeBusinessId}>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/generate" element={<ContentGenerator />} />
-            <Route path="/posts" element={<PostManager />} />
-            <Route path="/media" element={<MediaLibrary />} />
-            <Route path="/accounts" element={<SocialAccounts />} />
-            <Route path="/settings" element={<BrandSettings />} />
-          </Routes>
+          <Suspense fallback={
+            <div className="flex items-center justify-center h-[calc(100vh-200px)] lg:h-full min-h-[300px]">
+              <div className="spinner"></div>
+            </div>
+          }>
+            <Routes key={activeBusinessId}>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/generate" element={<ContentGenerator />} />
+              <Route path="/posts" element={<PostManager />} />
+              <Route path="/media" element={<MediaLibrary />} />
+              <Route path="/accounts" element={<SocialAccounts />} />
+              <Route path="/settings" element={<BrandSettings />} />
+            </Routes>
+          </Suspense>
         </div>
       </main>
 

@@ -4,8 +4,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import {
   Link2, Plus, Trash2, Edit3, Check, X, ExternalLink,
-  RefreshCw, AlertCircle, CheckCircle2, Eye, EyeOff,
-  Users, Copy, Unlink
+  CheckCircle2, Eye, EyeOff
 } from 'lucide-react';
 import SocialIcon from '../components/SocialIcons';
 

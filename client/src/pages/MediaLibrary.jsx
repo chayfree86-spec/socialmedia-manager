@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
-  Camera, Image, Video, Download, Trash2, Search,
-  Grid, List, Filter, Sparkles
+  Camera, Image, Download, Trash2,
+  Grid, List, Sparkles
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
