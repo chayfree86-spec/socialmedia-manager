@@ -13,6 +13,29 @@ if (!defined('ALLOW_ACCESS')) {
 }
 
 // ============================================
+// LOAD .ENV FILE (If Exists)
+// ============================================
+$envFile = dirname(__DIR__) . '/.env';
+if (file_exists($envFile)) {
+    $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if (empty($line) || strpos($line, '#') === 0) {
+            continue;
+        }
+        $parts = explode('=', $line, 2);
+        if (count($parts) === 2) {
+            $name = trim($parts[0]);
+            $value = trim($parts[1]);
+            $value = trim($value, "\"'");
+            putenv("{$name}={$value}");
+            $_ENV[$name] = $value;
+            $_SERVER[$name] = $value;
+        }
+    }
+}
+
+// ============================================
 // DATABASE CREDENTIALS
 // ============================================
 define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
