@@ -229,43 +229,50 @@ export default function Login({ onLogin }) {
       {/* ── Additional Floating Social Icons (Parallax Deep Space) ── */}
       
       {/* WhatsApp Icon */}
-      <div style={{ transform: `translate3d(${mousePos.x * 0.85}px, ${mousePos.y * 0.85}px, 0)`, transition: 'transform 0.15s ease-out' }} className="absolute bottom-28 right-[32%] z-0 hidden md:block">
-        <div className="w-12 h-12 bg-white/80 backdrop-blur-md border border-white/40 shadow-lg rounded-xl flex items-center justify-center animate-float-google hover:scale-110 hover:opacity-100 opacity-60 transition-all duration-500">
+      <div style={{ transform: `translate3d(${mousePos.x * 0.85}px, ${mousePos.y * 0.85}px, 0)`, transition: 'transform 0.15s ease-out' }} className="absolute bottom-[22%] right-[24%] z-10 hidden md:block">
+        <div className="w-12 h-12 bg-white/80 backdrop-blur-md border border-white/40 shadow-lg rounded-xl flex items-center justify-center animate-float-google hover:scale-110 hover:opacity-100 opacity-80 transition-all duration-500">
           <SocialIcon platform="whatsapp" size={32} badge={true} />
         </div>
       </div>
 
       {/* YouTube Icon */}
-      <div style={{ transform: `translate3d(${mousePos.x * -0.75}px, ${mousePos.y * 0.75}px, 0)`, transition: 'transform 0.15s ease-out' }} className="absolute top-[45%] left-12 lg:left-32 z-0 hidden md:block">
-        <div className="w-14 h-14 bg-white/80 backdrop-blur-md border border-white/40 shadow-lg rounded-xl flex items-center justify-center animate-float-fb hover:scale-110 hover:opacity-100 opacity-60 transition-all duration-500">
-          <SocialIcon platform="youtube" size={36} badge={true} />
+      <div style={{ transform: `translate3d(${mousePos.x * -0.75}px, ${mousePos.y * 0.75}px, 0)`, transition: 'transform 0.15s ease-out' }} className="absolute top-[18%] left-[24%] z-10 hidden md:block">
+        <div className="w-12 h-12 bg-white/80 backdrop-blur-md border border-white/40 shadow-lg rounded-xl flex items-center justify-center animate-float-fb hover:scale-110 hover:opacity-100 opacity-80 transition-all duration-500">
+          <SocialIcon platform="youtube" size={32} badge={true} />
         </div>
       </div>
 
       {/* Pinterest Icon */}
-      <div style={{ transform: `translate3d(${mousePos.x * 0.8}px, ${mousePos.y * -0.7}px, 0)`, transition: 'transform 0.15s ease-out' }} className="absolute top-32 right-[35%] z-0 hidden md:block">
-        <div className="w-12 h-12 bg-white/80 backdrop-blur-md border border-white/40 shadow-lg rounded-xl flex items-center justify-center animate-float-insta hover:scale-110 hover:opacity-100 opacity-60 transition-all duration-500">
+      <div style={{ transform: `translate3d(${mousePos.x * 0.8}px, ${mousePos.y * -0.7}px, 0)`, transition: 'transform 0.15s ease-out' }} className="absolute top-[18%] right-[24%] z-10 hidden md:block">
+        <div className="w-12 h-12 bg-white/80 backdrop-blur-md border border-white/40 shadow-lg rounded-xl flex items-center justify-center animate-float-insta hover:scale-110 hover:opacity-100 opacity-80 transition-all duration-500">
           <SocialIcon platform="pinterest" size={32} badge={true} />
         </div>
       </div>
 
       {/* Instagram Small Logo */}
-      <div style={{ transform: `translate3d(${mousePos.x * -0.55}px, ${mousePos.y * -0.55}px, 0)`, transition: 'transform 0.15s ease-out' }} className="absolute top-20 left-[35%] z-0 hidden md:block">
-        <div className="w-11 h-11 bg-white/80 backdrop-blur-md border border-white/40 shadow-lg rounded-xl flex items-center justify-center animate-float-linkedin hover:scale-110 hover:opacity-100 opacity-60 transition-all duration-500">
-          <SocialIcon platform="instagram" size={28} badge={true} />
+      <div style={{ transform: `translate3d(${mousePos.x * -0.55}px, ${mousePos.y * -0.55}px, 0)`, transition: 'transform 0.15s ease-out' }} className="absolute bottom-[22%] left-[24%] z-10 hidden md:block">
+        <div className="w-12 h-12 bg-white/80 backdrop-blur-md border border-white/40 shadow-lg rounded-xl flex items-center justify-center animate-float-linkedin hover:scale-110 hover:opacity-100 opacity-80 transition-all duration-500">
+          <SocialIcon platform="instagram" size={32} badge={true} />
         </div>
       </div>
 
       {/* LinkedIn Small Logo */}
-      <div style={{ transform: `translate3d(${mousePos.x * 0.7}px, ${mousePos.y * -0.6}px, 0)`, transition: 'transform 0.15s ease-out' }} className="absolute top-[55%] right-16 lg:right-36 z-0 hidden md:block">
-        <div className="w-12 h-12 bg-white/80 backdrop-blur-md border border-white/40 shadow-lg rounded-xl flex items-center justify-center animate-float-insta hover:scale-110 hover:opacity-100 opacity-60 transition-all duration-500">
-          <SocialIcon platform="linkedin" size={30} badge={true} />
+      <div style={{ transform: `translate3d(${mousePos.x * 0.7}px, ${mousePos.y * -0.6}px, 0)`, transition: 'transform 0.15s ease-out' }} className="absolute top-[48%] left-6 lg:left-12 z-10 hidden md:block">
+        <div className="w-12 h-12 bg-white/80 backdrop-blur-md border border-white/40 shadow-lg rounded-xl flex items-center justify-center animate-float-insta hover:scale-110 hover:opacity-100 opacity-80 transition-all duration-500">
+          <SocialIcon platform="linkedin" size={32} badge={true} />
         </div>
       </div>
- 
- 
+
+      {/* Twitter Small Logo */}
+      <div style={{ transform: `translate3d(${mousePos.x * -0.65}px, ${mousePos.y * 0.65}px, 0)`, transition: 'transform 0.15s ease-out' }} className="absolute top-[48%] right-6 lg:right-12 z-10 hidden md:block">
+        <div className="w-12 h-12 bg-white/80 backdrop-blur-md border border-white/40 shadow-lg rounded-xl flex items-center justify-center animate-float-google hover:scale-110 hover:opacity-100 opacity-80 transition-all duration-500">
+          <SocialIcon platform="twitter" size={32} badge={true} />
+        </div>
+      </div>
+  
+  
       {/* ── Login Form Card ── */}
-      <div className="max-w-md w-full bg-white/90 backdrop-blur-lg rounded-3xl shadow-xl border border-gray-100/80 p-8 sm:p-10 space-y-8 relative overflow-hidden transition-all duration-500 z-10">
+      <div className="max-w-md w-full bg-white/90 backdrop-blur-lg rounded-3xl shadow-xl border border-gray-100/80 p-8 sm:p-10 space-y-8 relative overflow-hidden transition-all duration-500 z-20">
         
         {/* Soft Background Accent Lights */}
         <div className="absolute top-0 right-0 -mr-16 -mt-16 w-36 h-36 rounded-full bg-indigo-200/30 blur-2xl pointer-events-none" />
