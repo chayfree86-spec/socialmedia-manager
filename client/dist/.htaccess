@@ -1,0 +1,12 @@
+RewriteEngine On
+RewriteBase /
+
+# If the request is for /api, do NOT rewrite (let Apache execute the PHP files)
+RewriteCond %{REQUEST_URI} ^/api [NC]
+RewriteRule ^ - [L]
+
+# For React Router: if not a physical file or directory, rewrite to index.html
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+RewriteRule ^ index.html [L]

@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import {
-  Wand2, Sparkles, Image, Video, Hash, Send, Clock,
+  Wand2, Sparkles, Image, Video, Hash, Send, Clock, Calendar,
   Copy, RefreshCw, Check, Loader2, X,
   Camera, Play, Languages, Smile, Zap,
   ChevronRight, ChevronLeft, Edit3, Eye,
@@ -83,6 +83,7 @@ export default function ContentGenerator() {
     }
     return null;
   });
+  const brandColor = brand?.brandColor || '#4f46e5';
 
   // Step: 0=input, 1=content, 2=image, 3=video, 4=preview
   const [step, setStep] = useState(0);
@@ -112,37 +113,37 @@ export default function ContentGenerator() {
   const quickActions = [
     {
       title: 'Generate Post',
-      icon: '✍️',
+      icon: Edit3,
       desc: 'Create engaging caption & text',
       promptText: 'Write a social media post about ',
     },
     {
       title: 'Generate Image',
-      icon: '🖼️',
+      icon: Image,
       desc: 'Design AI graphic prompt',
       promptText: 'Design an eye-catching graphic image for a post about ',
     },
     {
       title: 'Generate Video',
-      icon: '🎬',
+      icon: Video,
       desc: 'Write video script/reel idea',
       promptText: 'Write a 30-second video script for a reel about ',
     },
     {
       title: 'Generate Carousel',
-      icon: '🎠',
+      icon: LayoutGrid,
       desc: 'Multi-slide layout & copy',
       promptText: 'Create a multi-slide carousel outline and slide copy about ',
     },
     {
       title: 'Generate Hashtags',
-      icon: '#️⃣',
+      icon: Hash,
       desc: 'Trending & relevant tags',
       promptText: 'Suggest highly engaging and trending hashtags for ',
     },
     {
       title: 'Generate Calendar',
-      icon: '📅',
+      icon: Calendar,
       desc: 'Weekly planning schedule',
       promptText: 'Create a weekly content calendar with daily post ideas about ',
     },
@@ -514,11 +515,12 @@ export default function ContentGenerator() {
           {/* Quick Action Cards Grid */}
           {!useCustomContent && (
             <div className="space-y-2 mt-2">
-              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider">⚡ Quick Actions</label>
+              <label className="flex items-center gap-1.5 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                <Zap className="w-3.5 h-3.5" style={{ color: brandColor }} /> Quick Actions
+              </label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {quickActions.map((action, idx) => {
                   const isHovered = hoveredCard === idx;
-                  const brandColor = brand?.brandColor || '#4f46e5';
                   return (
                     <button
                       key={idx}
@@ -539,7 +541,10 @@ export default function ContentGenerator() {
                       }}
                       className="flex flex-col items-start p-4 rounded-xl border bg-white transition-all text-left duration-200 w-full active:scale-98"
                     >
-                      <span className="text-2xl mb-1.5">{action.icon}</span>
+                      {React.createElement(action.icon, {
+                        className: "w-5 h-5 mb-1.5 transition-colors duration-200",
+                        style: { color: isHovered ? brandColor : '#9ca3af' }
+                      })}
                       <span 
                         style={{ color: isHovered ? brandColor : '#1f2937' }}
                         className="text-xs font-bold transition-colors uppercase tracking-wider"
@@ -561,7 +566,10 @@ export default function ContentGenerator() {
             useCustomContent ? (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">✍️ Custom Caption</label>
+                  <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 mb-2">
+                    <Edit3 className="w-4 h-4" style={{ color: brandColor }} />
+                    Custom Caption
+                  </label>
                   <textarea
                     value={customCaption}
                     onChange={e => setCustomCaption(e.target.value)}
@@ -570,7 +578,10 @@ export default function ContentGenerator() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">#️⃣ Custom Hashtags</label>
+                  <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 mb-2">
+                    <Hash className="w-4 h-4" style={{ color: brandColor }} />
+                    Custom Hashtags
+                  </label>
                   <input
                     type="text"
                     value={customHashtags}
@@ -582,7 +593,10 @@ export default function ContentGenerator() {
               </div>
             ) : (
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">🎯 Enter your idea/prompt</label>
+                <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 mb-2">
+                  <Sparkles className="w-4 h-4" style={{ color: brandColor }} />
+                  Enter your idea/prompt
+                </label>
                 <textarea ref={promptInputRef} value={prompt} onChange={e => setPrompt(e.target.value)}
                   placeholder="e.g., Diwali special offer - 50% off on all products, free delivery in Delhi NCR..."
                   className="w-full h-32 px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 transition resize-none text-gray-800 placeholder-gray-400" />
@@ -629,11 +643,13 @@ export default function ContentGenerator() {
                 )}
               </div>
 
-              {/* Upload mode: AI vs Custom inputs */}
               {useCustomContent ? (
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">✍️ Custom Caption</label>
+                    <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 mb-2">
+                      <Edit3 className="w-4 h-4" style={{ color: brandColor }} />
+                      Custom Caption
+                    </label>
                     <textarea
                       value={customCaption}
                       onChange={e => setCustomCaption(e.target.value)}
@@ -642,7 +658,10 @@ export default function ContentGenerator() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">#️⃣ Custom Hashtags</label>
+                    <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 mb-2">
+                      <Hash className="w-4 h-4" style={{ color: brandColor }} />
+                      Custom Hashtags
+                    </label>
                     <input
                       type="text"
                       value={customHashtags}
@@ -655,7 +674,10 @@ export default function ContentGenerator() {
               ) : (
                 uploadedFile && (
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">🎯 Context for AI Caption</label>
+                    <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 mb-2">
+                      <Sparkles className="w-4 h-4" style={{ color: brandColor }} />
+                      Context for AI Caption
+                    </label>
                     <input value={prompt} onChange={e => setPrompt(e.target.value)}
                       placeholder="Optional: Add context/prompt for AI caption (e.g., Diwali Sale 50% off)"
                       className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-indigo-400 focus:ring-2 text-sm text-gray-700 placeholder-gray-400" />

@@ -10,7 +10,7 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:80',
         changeOrigin: true,
-        rewrite: (path) => '/socialmedia-manager' + path,
+        rewrite: (path) => '/socialmedia-manager/client/public' + path,
         // If using PHP built-in server: target: 'http://localhost:8080'
         // If using XAMPP/WAMP:          target: 'http://localhost:80'
         // If using Laragon:             target: 'http://localhost:80'

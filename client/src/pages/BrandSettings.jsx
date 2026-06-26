@@ -594,7 +594,7 @@ export default function BrandSettings() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 border-t border-gray-150 pt-5">
                 <div className="space-y-2">
                   <label className="block text-sm font-bold text-gray-700 flex items-center gap-1.5">
-                    <Phone className="w-4 h-4 text-emerald-500" />
+                    <Phone className="w-4 h-4" style={{ color: settings.brandColor }} />
                     Contact Number (WhatsApp)
                   </label>
                   <input
@@ -607,7 +607,7 @@ export default function BrandSettings() {
                 </div>
                 <div className="space-y-2">
                   <label className="block text-sm font-bold text-gray-700 flex items-center gap-1.5">
-                    <Mail className="w-4 h-4 text-blue-500" />
+                    <Mail className="w-4 h-4" style={{ color: settings.brandColor }} />
                     Email Address
                   </label>
                   <input
@@ -623,7 +623,7 @@ export default function BrandSettings() {
               {/* Address */}
               <div className="space-y-2">
                 <label className="block text-sm font-bold text-gray-700 flex items-center gap-1.5">
-                  <MapPin className="w-4 h-4 text-red-500" />
+                  <MapPin className="w-4 h-4" style={{ color: settings.brandColor }} />
                   Brand Address
                 </label>
                 <textarea

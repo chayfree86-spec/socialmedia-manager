@@ -89,7 +89,10 @@ out
 
 # Nuxt.js build / generate output
 .nuxt
-dist
+
+# Relocated API environment and temp files
+**/api/.env
+**/api/uploads/otp_code.txt
 
 # Gatsby files
 .cache/

@@ -347,8 +347,18 @@ function App() {
 
           {/* Quick Contact Info */}
           <div className="hidden md:flex items-center gap-5 text-xs text-gray-500 font-medium">
-            {currentBusiness.phone && <span className="flex items-center gap-1">📞 {currentBusiness.phone}</span>}
-            {currentBusiness.email && <span className="flex items-center gap-1">✉️ {currentBusiness.email}</span>}
+            {currentBusiness.phone && (
+              <span className="flex items-center gap-1.5">
+                <Phone className="w-3.5 h-3.5 transition-colors" style={{ color: currentBusiness.brandColor }} />
+                {currentBusiness.phone}
+              </span>
+            )}
+            {currentBusiness.email && (
+              <span className="flex items-center gap-1.5">
+                <Mail className="w-3.5 h-3.5 transition-colors" style={{ color: currentBusiness.brandColor }} />
+                {currentBusiness.email}
+              </span>
+            )}
           </div>
         </header>
 
