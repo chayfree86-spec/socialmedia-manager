@@ -147,15 +147,10 @@ elseif ($action === 'verify-otp' || $action === 'verify_otp') {
     }
 
     try {
-        // Fallback for easy local testing
-        if ($otp === '123456') {
-            $user = $db->fetchOne("SELECT * FROM users WHERE email = ? AND is_active = 1", [$email]);
-        } else {
-            $user = $db->fetchOne(
-                "SELECT * FROM users WHERE email = ? AND otp_code = ? AND otp_expiry > NOW() AND is_active = 1",
-                [$email, $otp]
-            );
-        }
+        $user = $db->fetchOne(
+            "SELECT * FROM users WHERE email = ? AND otp_code = ? AND otp_expiry > NOW() AND is_active = 1",
+            [$email, $otp]
+        );
 
         if (!$user) {
             jsonError('Incorrect OTP code. Please try again.');

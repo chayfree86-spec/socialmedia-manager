@@ -86,6 +86,28 @@ export default function Login({ onLogin }) {
     }
   };
 
+  const handleResendOtp = async () => {
+    if (loading) return;
+    setLoading(true);
+    try {
+      const { data } = await axios.post(`${API_BASE}/auth.php?action=login`, {
+        email: email.trim(),
+        password: password,
+        remember_me: rememberMe
+      });
+
+      if (data.success) {
+        toast.success(data.message || 'Verification code resent! 📬');
+      } else {
+        toast.error(data.error || 'Failed to resend code. Please try again.');
+      }
+    } catch (err) {
+      toast.error('Failed to resend code. Please check your connection.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div onMouseMove={handleMouseMove} className="min-h-screen relative flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-sky-50 px-4 py-12 sm:px-6 lg:px-8 font-sans overflow-hidden">
       
@@ -329,12 +351,6 @@ export default function Login({ onLogin }) {
                   Remember me
                 </label>
               </div>
-
-              <div className="text-sm">
-                <span className="font-semibold text-indigo-500 hover:text-indigo-600 cursor-help" onClick={() => toast('Demo Creds: admin@socialai.com / admin123')}>
-                  Demo account info?
-                </span>
-              </div>
             </div>
 
             {/* Submit Button */}
@@ -405,14 +421,14 @@ export default function Login({ onLogin }) {
             <div className="text-center">
               <p className="text-xs text-gray-400">
                 Didn't receive code?{' '}
-                <span 
-                  className="font-bold text-indigo-500 hover:text-indigo-600 cursor-pointer"
-                  onClick={() => {
-                    toast.success('Demo code resent! 🔑 code: 123456');
-                  }}
+                <button
+                  type="button"
+                  disabled={loading}
+                  className="font-bold text-indigo-500 hover:text-indigo-600 cursor-pointer disabled:opacity-50"
+                  onClick={handleResendOtp}
                 >
                   Resend Code
-                </span>
+                </button>
               </p>
             </div>
           </form>
